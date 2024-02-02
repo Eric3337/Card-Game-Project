@@ -19,7 +19,7 @@ be an arbitrary number of accounts/players in this game.
 For example, having a list of an object 
 accounts that has the statistics of players (ex: win/lost ratios)(this one is 
 likely to be helpful with multiplayer systems, that's
-just my own idea when i want to expand on this project)
+just my own idea when I want to expand on this project)
 
 The arbitrary list can *also* be the history of moves/games that
 the player has done, which can also be arbitrary.
@@ -27,4 +27,13 @@ the player has done, which can also be arbitrary.
 The cards can be represented as a list or a hashset 
 where the system can look through it easily.
 
+
+## User Stories
+
+- As a user, I want to be able to start and play a game of cards.
+- As a user, I want to be able to create an account and add played games to it.
+- As a user, I want to be able to view my history of past played games, total number of games played,
+  and win/lost ratio for each game on my account
+- As a user, I want to be able to delete my account.
+- As a user, I want to be able to see the leaderboard for the top user based on win/loss ratio.
 
