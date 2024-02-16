@@ -24,7 +24,7 @@ public class CompOP {
         return null;
     }
 
-    public int getNumCardsInHand() {
+    public int getNumCardsInHandForOp() {
         return 0;
     }
 

@@ -6,9 +6,11 @@ public class Player {
     private ArrayList<Card> cardsInHand;
     private int playerLevel;
     private Card selectedCard;
+    private String name;
 
     // EFFECTS: creates a player with no cards in hand and starts at level 3
-    public Player() {
+    public Player(String username) {
+        this.name = username;
     }
 
     // MODIFIES: this
@@ -24,7 +26,7 @@ public class Player {
         return null;
     }
 
-    public int getNumCardsInHand() {
+    public int getNumCardsInHandForOp() {
         return 0;
     }
 
