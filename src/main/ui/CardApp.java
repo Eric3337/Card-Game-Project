@@ -1,21 +1,27 @@
 package ui;
 
-import java.sql.Array;
+
 import java.util.*;
 
 import model.Account;
 import model.Card;
 
+// CardApp is the card game application. It runs the main menu and the other features such as signing in to an account
+//      creating an account, looking up the leaderboards, and checking account statistic. It also runs games
+//      and tracks an account's losses and wins.
 public class CardApp {
+    // General structure of displaying the main menu and getting the input from the user
+    // was partially taken from the TellerApp that was provided in the edX phase 1 module
     private Scanner input;
     private List<Account> accountList;
     private Account accountSignedIn;
 
-    // EFFECTS: runs the CardApp
+    // EFFECTS: creates a card app runs the CardApp
     public CardApp() {
         runApp();
     }
 
+    // EFFECTS: run's the card game app
     private void runApp() {
         boolean isRunning = true;
         String command = null;
@@ -37,12 +43,16 @@ public class CardApp {
         System.out.println("Thank you for playing!");
     }
 
+    // MODIFIES: this
+    // EFFECTS: initializes the fields (accountSignedIn was not initialized here since
+    //          it needs to be null at first
     private void init() {
         accountList = new ArrayList<Account>();
         input = new Scanner(System.in);
         input.useDelimiter("\n");
     }
 
+    // EFFECTS: displays the main menu of the game
     private void displayMainMenu() {
         System.out.println("---------------------------------------\nWelcome to Da Niang Niang!");
         if (accountSignedIn == null) {
@@ -58,6 +68,7 @@ public class CardApp {
         System.out.println("\t  Quit Game [q]\n---------------------------------------");
     }
 
+    // EFFECTS: executes the main menu command and calls a method to whichever command is desired
     private void executeCommand(String command) {
         if (command.equals("1")) {
             if (accountSignedIn == null) {
@@ -82,9 +93,12 @@ public class CardApp {
         }
     }
 
+    // EFFECTS: initializes a new game that creates a random number of cards for the player
+    //          and opponent from 11 to 20, and keeps track of each side's cards.
+    //          Then, it deals cards to each player and runs the game accordingly
     private void newGame() {
         Random random = new Random();
-        int numCardsPerPlayer = random.nextInt(4) + 2; // REMEMBER TO CHANGE BACK TO (11) + 10 !!!
+        int numCardsPerPlayer = random.nextInt(11) + 10; // REMEMBER TO CHANGE BACK TO (11) + 10 !!!
 
         List<Card> playerCards = new ArrayList<Card>();
         List<Card> compCards = new ArrayList<Card>();
@@ -94,6 +108,11 @@ public class CardApp {
         runGame(playerCards, compCards);
     }
 
+    // EFFECTS: runs a game of cards based off the rules of the game and which cards the player has
+    //          selected to play down
+    //          if either the player or opponent (computer opponent) runs out of cards,
+    //          print out appropriate message and add a victory or loss to player accordingly
+    //          then adds one game to total games played
     private void runGame(List<Card> playerCards, List<Card> compCards) {
         boolean isGamePlaying = true;
         Card lastCardPlayed = null;
@@ -124,6 +143,9 @@ public class CardApp {
         }
     }
 
+    // EFFECTS: sets up game and the intermediate phases of the game where the player is
+    //          asked to choose a card to play and displays the last card played down and
+    //          lists the cards that the player has
     private void gameSetUp(List<Card> playerCards, Card lastCardPlayed) {
         List<String> readableCards = new ArrayList<String>();
         for (int i = 0; i < playerCards.size(); i++) {
@@ -143,6 +165,8 @@ public class CardApp {
         }
     }
 
+    // EFFECTS: alternates turns between the player and the opponent
+    //          checks to see whether the card selected by player exists in hand
     private void doTurns(List<Card> pcards, List<Card> ccards, String selNum, String selSuit, Card lastCardPlayed) {
         for (int i = 0; i < pcards.size(); i++) {
             Card cardSelected = pcards.get(i);
@@ -153,6 +177,7 @@ public class CardApp {
             }
         }
 
+        // EFFECTS: computer opponents selects a card
         for (int i = 0; i < ccards.size(); i++) {
             Card cardSelByComp = ccards.get(i);
             if (cardSelByComp.getIntNum() > (lastCardPlayed.getIntNum())) {
@@ -163,6 +188,7 @@ public class CardApp {
         }
     }
 
+    // EFFECTS:
     private void dealCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
 
         for (int i = 0; i < numCardsPerPlayer; i++) {

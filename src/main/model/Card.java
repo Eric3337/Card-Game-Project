@@ -2,12 +2,15 @@ package model;
 
 import java.util.Random;
 
+// Card is representing a card that has a number and a suit
+//      the number is ranging from 3 to 14, where 11 is J, 12 is Q, 13 is K,
+//      and 14 is ace.
 public class Card {
-    private int num; // 3-14, Ace is 14, J,Q,K is 11, 12, 13 respectively
+    private int num;
     private String suit;
-//    boolean isJoker;
-//    boolean isTwo;
 
+    // MODIFIES: this
+    // EFFECTS: creates a card with a random number and a random suit
     public Card() {
         Random random = new Random();
         num = random.nextInt(12) + 3;

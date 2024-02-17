@@ -1,5 +1,9 @@
 package model;
 
+// Account represents the account of any users that wish to create one. The account includes
+//          unique id, a username, a password, the number of games won and lost and played in total.
+//          the account can also show the win loss ratio which is used to calculate the account's
+//          position on the leaderboard
 public class Account {
     private static int nextAccId = 1;
     private int id;
@@ -9,6 +13,9 @@ public class Account {
     private Integer gamesLost;
     private Integer totalGamesPlayed;
 
+    // MODIFIES: this
+    // EFFECTS: creates an account with a unique id, username, password and sets
+    //          games won, lost, and total games played to zero
     public Account(String accName, String password) {
         id = nextAccId++;
         username = accName;
@@ -18,6 +25,7 @@ public class Account {
         totalGamesPlayed = 0;
     }
 
+    // EFFECTS: calculates the win loss ratio
     public double calculateRatio() {
         if (gamesLost == 0 && gamesWon == 1) {
             return 1;
@@ -38,10 +46,6 @@ public class Account {
 
     public void playedAGame() {
         totalGamesPlayed++;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getUsername() {
