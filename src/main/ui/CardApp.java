@@ -54,7 +54,7 @@ public class CardApp {
 
     // EFFECTS: displays the main menu of the game
     private void displayMainMenu() {
-        System.out.println("---------------------------------------\nWelcome to Da Niang Niang!");
+        System.out.println("---------------------------------------\n Welcome to Da Niang Niang!");
         if (accountSignedIn == null) {
             System.out.println(" ");
         } else {
@@ -98,7 +98,7 @@ public class CardApp {
     //          Then, it deals cards to each player and runs the game accordingly
     private void newGame() {
         Random random = new Random();
-        int numCardsPerPlayer = random.nextInt(11) + 10; // REMEMBER TO CHANGE BACK TO (11) + 10 !!!
+        int numCardsPerPlayer = random.nextInt(2) + 2;
 
         List<Card> playerCards = new ArrayList<Card>();
         List<Card> compCards = new ArrayList<Card>();
@@ -120,27 +120,53 @@ public class CardApp {
         while (isGamePlaying) {
             gameSetUp(playerCards, lastCardPlayed);
 
-            System.out.println("What do you want to play?");
+            lastCardPlayed = executeGameInteraction(playerCards, compCards, lastCardPlayed);
+
+            isGamePlaying = gameOver(playerCards, compCards);
+        }
+        accountSignedIn.playedAGame();
+    }
+
+    // EFFECTS: based off the commands by the user in the game, the user can either pass or play
+    private Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
+        System.out.println("\nPass [1] or Play [2]");
+        String gameCommand = input.next();
+        if (gameCommand.equals("1")) {
+            Card lowestCardNum = compCards.get(0);
+            for (int i = 1; i < compCards.size(); i++) {
+                if (compCards.get(i).getIntNum() < lowestCardNum.getIntNum()) {
+                    lowestCardNum = compCards.get(i);
+                }
+            }
+            compCards.remove(compCards.get(compCards.indexOf(lowestCardNum)));
+            lastCardPlayed = lowestCardNum;
+        } else if (gameCommand.equals("2")) {
             System.out.println("Number: ");
             String selectedNum = input.next();
             System.out.println("Suit: ");
             String selectedSuit = input.next();
 
-            doTurns(playerCards, compCards, selectedNum, selectedSuit, lastCardPlayed);
-
-
-            if (playerCards.size() == 0 || compCards.size() == 0) {
-                isGamePlaying = false;
-                if (playerCards.size() == 0) {
-                    accountSignedIn.wonAGame();
-                    System.out.println("Yay you won!");
-                } else {
-                    accountSignedIn.lostAGame();
-                    System.out.println("Aww you lost!");
-                }
-            }
-            accountSignedIn.playedAGame();
+            lastCardPlayed = doPTurn(playerCards, selectedNum, selectedSuit, lastCardPlayed, compCards);
+        } else {
+            System.out.println("Please select a valid option!");
         }
+        return lastCardPlayed;
+    }
+
+    // EFFECTS: checks to see if the game is over and modifies the fields in the signed in accounts according to
+    //          whether the account has won or lost the game
+    private boolean gameOver(List<Card> playerCards, List<Card> compCards) {
+        if (playerCards.size() == 0 || compCards.size() == 0) {
+            if (playerCards.size() == 0) {
+                accountSignedIn.wonAGame();
+                System.out.println("Yay you won!");
+            } else {
+                accountSignedIn.lostAGame();
+                System.out.println("Aww you lost!");
+            }
+            return false;
+        }
+        return true;
     }
 
     // EFFECTS: sets up game and the intermediate phases of the game where the player is
@@ -151,7 +177,6 @@ public class CardApp {
         for (int i = 0; i < playerCards.size(); i++) {
             readableCards.add(playerCards.get(i).getNum() + " of " + playerCards.get(i).getSuit());
         }
-        Collections.sort(readableCards);
         System.out.println("--------------------\nOpponent\n");
         if (lastCardPlayed == null) {
             System.out.println("Last card played: \n");
@@ -165,30 +190,51 @@ public class CardApp {
         }
     }
 
-    // EFFECTS: alternates turns between the player and the opponent
-    //          checks to see whether the card selected by player exists in hand
-    private void doTurns(List<Card> pcards, List<Card> ccards, String selNum, String selSuit, Card lastCardPlayed) {
+    // EFFECTS: does the player's turn checks to see whether the card selected by player exists in hand and
+    //          whether selNum > lastCardPlayed.getIntNum()
+    private Card doPTurn(List<Card> pcards, String selNum, String selSuit, Card lastCardPlayed, List<Card> ccards) {
         for (int i = 0; i < pcards.size(); i++) {
-            Card cardSelected = pcards.get(i);
-            if (cardSelected.getNum().equals(selNum) && cardSelected.getSuit().equals(selSuit)) {
-                pcards.remove(cardSelected);
-                lastCardPlayed = cardSelected;
-                break;
+            if (pcards.get(i).getNum().equals(selNum) && pcards.get(i).getSuit().equals(selSuit)) {
+                if (lastCardPlayed == null) {
+                    lastCardPlayed = pcards.get(i);
+                    pcards.remove(pcards.get(i));
+                    lastCardPlayed = doCompTurn(ccards, lastCardPlayed);
+                    return lastCardPlayed;
+                }
+                if (Integer.parseInt(selNum) > lastCardPlayed.getIntNum()) {
+                    lastCardPlayed = pcards.get(i);
+                    pcards.remove(pcards.get(i));
+                    lastCardPlayed = doCompTurn(ccards, lastCardPlayed);
+                    return lastCardPlayed;
+                }
+                System.out.println("Please select a card number greater than last played card!");
+                return lastCardPlayed;
             }
         }
-
-        // EFFECTS: computer opponents selects a card
-        for (int i = 0; i < ccards.size(); i++) {
-            Card cardSelByComp = ccards.get(i);
-            if (cardSelByComp.getIntNum() > (lastCardPlayed.getIntNum())) {
-                ccards.remove(cardSelByComp);
-                lastCardPlayed = cardSelByComp;
-                break;
-            }
-        }
+        System.out.println("Please select a card in your hand!");
+        return lastCardPlayed;
     }
 
-    // EFFECTS:
+    // EFFECTS: does the computer turn by checking to see if there is a larger card than the last played card
+    //          and plays that card, otherwise opponent will print out "pass"
+    private Card doCompTurn(List<Card> ccards, Card lastCardPlayed) {
+        if (lastCardPlayed == null) {
+            return null;
+        } else {
+            for (int i = 0; i < ccards.size(); i++) {
+                if (ccards.get(i).getIntNum() > lastCardPlayed.getIntNum()) {
+                    lastCardPlayed = ccards.get(i);
+                    ccards.remove(ccards.get(i));
+                    return lastCardPlayed;
+                }
+            }
+        }
+        System.out.println("Opponent: Pass :(");
+        return null;
+    }
+
+    // EFFECTS: deals cards to both computer opponent and player ensuring that there are the correct number of
+    //          cards for each player and with no duplicates in each deck
     private void dealCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
 
         for (int i = 0; i < numCardsPerPlayer; i++) {
@@ -199,60 +245,51 @@ public class CardApp {
                 playerCards.add(randPCard);
                 compCards.add(randCCard);
             }
-
-            checkOrDealPlayerCards(playerCards, randPCard);
-
-            checkOrDealOpponentCards(compCards, randCCard);
-
-
+            if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
+                playerCards.add(randPCard);
+            }
+            if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
+                compCards.add(randCCard);
+            }
         }
         checkValidNumOfCards(numCardsPerPlayer, playerCards, compCards);
 
     }
 
-    private void checkOrDealPlayerCards(List<Card> playerCards, Card randPCard) {
-        for (int j = 0; j < playerCards.size(); j++) {
-            Card currentCard = playerCards.get(j);
-            int currentCardNum = currentCard.getIntNum();
-            String currentCardSuit = currentCard.getSuit();
-            if (randPCard.getIntNum() == currentCardNum && randPCard.getSuit().equals(currentCardSuit)) {
-                break;
-            } else {
-                playerCards.add(randPCard);
-                break;
-            }
-        }
-    }
-
-    private void checkOrDealOpponentCards(List<Card> compCards, Card randCCard) {
-        for (int j = 0; j < compCards.size(); j++) {
-            Card currCard = compCards.get(j);
+    // EFFECTS checks whether a card is in a hand
+    private boolean isRandCardInHand(List<Card> cardsInHand, Card randomCard) {
+        for (int j = 0; j < cardsInHand.size(); j++) {
+            Card currCard = cardsInHand.get(j);
             int currentCardNum = currCard.getIntNum();
             String currentCardSuit = currCard.getSuit();
-            if (randCCard.getIntNum() == currentCardNum && randCCard.getSuit().equals(currentCardSuit)) {
-                break;
-            } else {
-                compCards.add(randCCard);
-                break;
+            if (randomCard.getIntNum() == currentCardNum && randomCard.getSuit().equals(currentCardSuit)) {
+                return true;
             }
         }
+        return false;
     }
 
 
+    // EFFECTS: checks whether there are the correct number of cards in each hand
     private void checkValidNumOfCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
         while (playerCards.size() != numCardsPerPlayer || compCards.size() != numCardsPerPlayer) {
             Card randPCard = new Card();
             Card randCCard = new Card();
             if (playerCards.size() != numCardsPerPlayer) {
-                checkOrDealPlayerCards(playerCards, randPCard);
+                if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
+                    playerCards.add(randPCard);
+                }
             }
 
             if (compCards.size() != numCardsPerPlayer) {
-                checkOrDealOpponentCards(compCards, randCCard);
+                if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
+                    compCards.add(randCCard);
+                }
             }
         }
     }
 
+    // EFFECTS: signs in a user into their account
     private void signIn() {
         System.out.println("Username: ");
         String inputtedUsername = input.next();
@@ -271,6 +308,7 @@ public class CardApp {
         System.out.println("Username does not exist, or incorrect password!");
     }
 
+    // EFFECTS: creates a new account based off a user's username and password
     private void createNewAcc() {
         System.out.println("Username: ");
         String inputtedUsername = input.next();
@@ -298,8 +336,10 @@ public class CardApp {
         accountSignedIn = userAccount;
     }
 
+    // EFFECTS: show the leaderboard with the user's position on the leaderboard, with the option to return back
+    //          to the main menu
     private void showLeaderboard() {
-        List<Double> wlrList = new ArrayList<Double>();
+        List<Double> wlrList = new ArrayList<>();
         if (accountList.size() == 0) {
             System.out.println("No players on leaderboard yet!");
             return;
@@ -318,6 +358,7 @@ public class CardApp {
         showLeaderboardMenu();
     }
 
+    // EFFECTS: shows the leaderboard menu and takes in user command
     private void showLeaderboardMenu() {
         boolean isLeaderboardRunning = true;
         while (isLeaderboardRunning) {
@@ -330,9 +371,13 @@ public class CardApp {
         }
     }
 
+    // EFFECTS: shows the user's account with their total games played, win loss ratio, games won/lost, as well as
+    //          the option to delete, sign out, or go back to main menu option
     private void showMyAcc() {
         System.out.println("Total Games Played: " + accountSignedIn.getTotalGamesPlayed());
         System.out.println("W/L Ratio: " + accountSignedIn.calculateRatio());
+        System.out.println("Games Won: " + accountSignedIn.getGamesWon());
+        System.out.println("Games Lost: " + accountSignedIn.getGamesLost());
         System.out.println("\nDelete Account [d]");
         System.out.println("Sign Out [s]\n");
         System.out.println("Back [b]");

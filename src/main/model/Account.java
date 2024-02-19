@@ -30,9 +30,9 @@ public class Account {
         if (gamesLost == 0 && gamesWon == 1) {
             return 1;
         } else if (gamesLost == 0) {
-            return gamesWon / 1;
+            return (double)gamesWon / 1;
         } else {
-            return gamesWon / gamesLost;
+            return (double)gamesWon / gamesLost;
         }
     }
 
