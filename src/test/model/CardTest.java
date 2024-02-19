@@ -24,6 +24,13 @@ public class CardTest {
         testSuitList.add("hearts");
         testSuitList.add("diamonds");
         assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
+        assertTrue(testSuitList.contains(card.getSuit()));
 
         List<Integer> testNumList = new ArrayList<>();
         testNumList.add(3);
