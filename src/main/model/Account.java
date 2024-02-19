@@ -5,7 +5,7 @@ package model;
 //          the account can also show the win loss ratio which is used to calculate the account's
 //          position on the leaderboard
 public class Account {
-    private static int nextAccId = 1;
+    private static int nextAccId = 0;
     private int id;
     private String username;
     private String pw;
@@ -25,7 +25,7 @@ public class Account {
         totalGamesPlayed = 0;
     }
 
-    // EFFECTS: calculates the win loss ratio
+    // EFFECTS: calculates the win loss ratio, results is a double type
     public double calculateRatio() {
         if (gamesLost == 0 && gamesWon == 1) {
             return 1;
@@ -46,6 +46,10 @@ public class Account {
 
     public void playedAGame() {
         totalGamesPlayed++;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getUsername() {
