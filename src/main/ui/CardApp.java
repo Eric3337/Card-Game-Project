@@ -98,7 +98,7 @@ public class CardApp {
     //          Then, it deals cards to each player and runs the game accordingly
     private void newGame() {
         Random random = new Random();
-        int numCardsPerPlayer = random.nextInt(2) + 2;
+        int numCardsPerPlayer = random.nextInt(11) + 10;
 
         List<Card> playerCards = new ArrayList<Card>();
         List<Card> compCards = new ArrayList<Card>();
