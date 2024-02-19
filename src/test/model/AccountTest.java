@@ -3,7 +3,7 @@ package model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AccountTest {
     private Account account;
@@ -60,5 +60,19 @@ class AccountTest {
         account.lostAGame();
         account.lostAGame();
         assertEquals(3, account.getGamesLost());
+    }
+
+    @Test
+    void testPlayedAGameOnce() {
+        account.playedAGame();
+        assertEquals(1, account.getTotalGamesPlayed());
+    }
+
+    @Test
+    void testPlayedAGameMultiple() {
+        account.playedAGame();
+        account.playedAGame();
+        account.playedAGame();
+        assertEquals(3, account.getTotalGamesPlayed());
     }
 }

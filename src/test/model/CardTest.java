@@ -40,4 +40,22 @@ public class CardTest {
         testNumList.add(14);
         assertTrue(testNumList.contains(card.getIntNum()));
     }
+
+    @Test
+    void testGetNum() {
+        List<String> testNumList = new ArrayList<>();
+        testNumList.add("3");
+        testNumList.add("4");
+        testNumList.add("5");
+        testNumList.add("6");
+        testNumList.add("7");
+        testNumList.add("8");
+        testNumList.add("9");
+        testNumList.add("10");
+        testNumList.add("11");
+        testNumList.add("12");
+        testNumList.add("13");
+        testNumList.add("14");
+        assertTrue(testNumList.contains(card.getNum()));
+    }
 }
