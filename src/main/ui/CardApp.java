@@ -179,9 +179,9 @@ public class CardApp {
         }
         System.out.println("--------------------\nOpponent\n");
         if (lastCardPlayed == null) {
-            System.out.println("Last card played: \n");
+            System.out.println("Opponent last card played: \n");
         } else {
-            System.out.println("Last card played: " + lastCardPlayed.getIntNum() + " of " + lastCardPlayed.getSuit());
+            System.out.println("Opponent last card played: " + lastCardPlayed.getIntNum() + " of " + lastCardPlayed.getSuit());
         }
         System.out.println("\nYour cards: ");
 
@@ -254,7 +254,15 @@ public class CardApp {
         }
         checkValidNumOfCards(numCardsPerPlayer, playerCards, compCards);
 
+        //orderCards(playerCards);
+
     }
+
+//    private void orderCards(List<Card> playerCards) {
+//        for (int i = 0; i < playerCards.size() - 1; i++) {
+//
+//        }
+//    }
 
     // EFFECTS checks whether a card is in a hand
     private boolean isRandCardInHand(List<Card> cardsInHand, Card randomCard) {
