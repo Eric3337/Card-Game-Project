@@ -5,6 +5,7 @@ import java.util.*;
 
 import model.Account;
 import model.Card;
+import model.CardGame;
 
 // CardApp is the card game application. It runs the main menu and the other features such as signing in to an account
 //      creating an account, looking up the leaderboards, and checking account statistic. It also runs games
@@ -15,6 +16,7 @@ public class CardApp {
     private Scanner input;
     private List<Account> accountList;
     private Account accountSignedIn;
+    private CardGame cardGame;
 
     // EFFECTS: creates a card app runs the CardApp
     public CardApp() {
@@ -74,7 +76,7 @@ public class CardApp {
             if (accountSignedIn == null) {
                 System.out.println("Please sign in or create a new account!");
             } else {
-                newGame();
+                cardGame.newGame(accountSignedIn);
             }
         } else if (command.equals("2")) {
             signIn();
@@ -93,42 +95,8 @@ public class CardApp {
         }
     }
 
-    // EFFECTS: initializes a new game that creates a random number of cards for the player
-    //          and opponent from 11 to 20, and keeps track of each side's cards.
-    //          Then, it deals cards to each player and runs the game accordingly
-    private void newGame() {
-        Random random = new Random();
-        int numCardsPerPlayer = random.nextInt(11) + 10;
-
-        List<Card> playerCards = new ArrayList<Card>();
-        List<Card> compCards = new ArrayList<Card>();
-
-        dealCards(numCardsPerPlayer, playerCards, compCards);
-
-        runGame(playerCards, compCards);
-    }
-
-    // EFFECTS: runs a game of cards based off the rules of the game and which cards the player has
-    //          selected to play down
-    //          if either the player or opponent (computer opponent) runs out of cards,
-    //          print out appropriate message and add a victory or loss to player accordingly
-    //          then adds one game to total games played
-    private void runGame(List<Card> playerCards, List<Card> compCards) {
-        boolean isGamePlaying = true;
-        Card lastCardPlayed = null;
-
-        while (isGamePlaying) {
-            gameSetUp(playerCards, lastCardPlayed);
-
-            lastCardPlayed = executeGameInteraction(playerCards, compCards, lastCardPlayed);
-
-            isGamePlaying = gameOver(playerCards, compCards);
-        }
-        accountSignedIn.playedAGame();
-    }
-
     // EFFECTS: based off the commands by the user in the game, the user can either pass or play
-    private Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
+    public Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
         System.out.println("\nPass [1] or Play [2]");
         String gameCommand = input.next();
         if (gameCommand.equals("1")) {
@@ -155,7 +123,7 @@ public class CardApp {
 
     // EFFECTS: checks to see if the game is over and modifies the fields in the signed in accounts according to
     //          whether the account has won or lost the game
-    private boolean gameOver(List<Card> playerCards, List<Card> compCards) {
+    public boolean gameOver(List<Card> playerCards, List<Card> compCards) {
         if (playerCards.size() == 0 || compCards.size() == 0) {
             if (playerCards.size() == 0) {
                 accountSignedIn.wonAGame();
@@ -172,7 +140,7 @@ public class CardApp {
     // EFFECTS: sets up game and the intermediate phases of the game where the player is
     //          asked to choose a card to play and displays the last card played down and
     //          lists the cards that the player has
-    private void gameSetUp(List<Card> playerCards, Card lastCardPlayed) {
+    public void gameSetUp(List<Card> playerCards, Card lastCardPlayed) {
         List<String> readableCards = new ArrayList<String>();
         for (int i = 0; i < playerCards.size(); i++) {
             readableCards.add(playerCards.get(i).getNum() + " of " + playerCards.get(i).getSuit());
@@ -181,7 +149,8 @@ public class CardApp {
         if (lastCardPlayed == null) {
             System.out.println("Opponent last card played: \n");
         } else {
-            System.out.println("Opponent last card played: " + lastCardPlayed.getIntNum() + " of " + lastCardPlayed.getSuit());
+            System.out.println("Opponent last card played: "
+                    + lastCardPlayed.getIntNum() + " of " + lastCardPlayed.getSuit());
         }
         System.out.println("\nYour cards: ");
 
@@ -231,70 +200,6 @@ public class CardApp {
         }
         System.out.println("Opponent: Pass :(");
         return null;
-    }
-
-    // EFFECTS: deals cards to both computer opponent and player ensuring that there are the correct number of
-    //          cards for each player and with no duplicates in each deck
-    private void dealCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
-
-        for (int i = 0; i < numCardsPerPlayer; i++) {
-            Card randPCard = new Card();
-            Card randCCard = new Card();
-
-            if (playerCards.size() == 0) {
-                playerCards.add(randPCard);
-                compCards.add(randCCard);
-            }
-            if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
-                playerCards.add(randPCard);
-            }
-            if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
-                compCards.add(randCCard);
-            }
-        }
-        checkValidNumOfCards(numCardsPerPlayer, playerCards, compCards);
-
-        //orderCards(playerCards);
-
-    }
-
-//    private void orderCards(List<Card> playerCards) {
-//        for (int i = 0; i < playerCards.size() - 1; i++) {
-//
-//        }
-//    }
-
-    // EFFECTS checks whether a card is in a hand
-    private boolean isRandCardInHand(List<Card> cardsInHand, Card randomCard) {
-        for (int j = 0; j < cardsInHand.size(); j++) {
-            Card currCard = cardsInHand.get(j);
-            int currentCardNum = currCard.getIntNum();
-            String currentCardSuit = currCard.getSuit();
-            if (randomCard.getIntNum() == currentCardNum && randomCard.getSuit().equals(currentCardSuit)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    // EFFECTS: checks whether there are the correct number of cards in each hand
-    private void checkValidNumOfCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
-        while (playerCards.size() != numCardsPerPlayer || compCards.size() != numCardsPerPlayer) {
-            Card randPCard = new Card();
-            Card randCCard = new Card();
-            if (playerCards.size() != numCardsPerPlayer) {
-                if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
-                    playerCards.add(randPCard);
-                }
-            }
-
-            if (compCards.size() != numCardsPerPlayer) {
-                if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
-                    compCards.add(randCCard);
-                }
-            }
-        }
     }
 
     // EFFECTS: signs in a user into their account

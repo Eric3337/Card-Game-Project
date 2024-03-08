@@ -32,8 +32,9 @@ where the system can look through it easily.
 
 - As a user, I want to be able to start and play a game of cards.
 - As a user, I want to be able to create an account and add played games to it.
-- As a user, I want to be able to view my history of past played games, total number of games played,
+- As a user, I want to be able to view the total number of games played,
   and win/lost ratio for each game on my account
 - As a user, I want to be able to delete my account.
-- As a user, I want to be able to see the leaderboard for the top user based on win/loss ratio.
-
+- As a user, I want to be able to see the leaderboard for the top user accounts based on win/loss ratio.
+- As a user, I want to be able to save my data in my account to file (if I choose so).
+- As a user, I want to be able to load my data in my account from file (if I choose so).
