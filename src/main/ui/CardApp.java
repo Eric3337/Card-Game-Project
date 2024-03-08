@@ -1,11 +1,15 @@
 package ui;
 
 
+import java.io.FileNotFoundException;
 import java.util.*;
 
 import model.Account;
 import model.Card;
 import model.CardGame;
+import model.AccountList;
+import persistence.JsonReader;
+import persistence.JsonWriter;
 
 // CardApp is the card game application. It runs the main menu and the other features such as signing in to an account
 //      creating an account, looking up the leaderboards, and checking account statistic. It also runs games
@@ -13,20 +17,35 @@ import model.CardGame;
 public class CardApp {
     // General structure of displaying the main menu and getting the input from the user
     // was partially taken from the TellerApp that was provided in the edX phase 1 module
+    private static final String JSON_STORE = "./data/cardgame.json";
     private Scanner input;
-    private List<Account> accountList;
+    private AccountList accountList;
     private Account accountSignedIn;
     private CardGame cardGame;
+    private JsonWriter jsonWriter;
+    private JsonReader jsonReader;
 
     // EFFECTS: creates a card app runs the CardApp
-    public CardApp() {
+    public CardApp() throws FileNotFoundException {
         runApp();
+    }
+
+    // MODIFIES: this
+    // EFFECTS: initializes the fields (accountSignedIn was not initialized here since
+    //          it needs to be null at first
+    private void init() {
+        accountList = new AccountList();
+        input = new Scanner(System.in);
+        input.useDelimiter("\n");
+        cardGame = new CardGame(accountSignedIn, this);
+        jsonWriter = new JsonWriter(JSON_STORE);
+        jsonReader = new JsonReader(JSON_STORE);
     }
 
     // EFFECTS: run's the card game app
     private void runApp() {
         boolean isRunning = true;
-        String command = null;
+        String command;
 
         init();
 
@@ -45,15 +64,6 @@ public class CardApp {
         System.out.println("Thank you for playing!");
     }
 
-    // MODIFIES: this
-    // EFFECTS: initializes the fields (accountSignedIn was not initialized here since
-    //          it needs to be null at first
-    private void init() {
-        accountList = new ArrayList<Account>();
-        input = new Scanner(System.in);
-        input.useDelimiter("\n");
-    }
-
     // EFFECTS: displays the main menu of the game
     private void displayMainMenu() {
         System.out.println("---------------------------------------\n Welcome to Da Niang Niang!");
@@ -62,7 +72,7 @@ public class CardApp {
         } else {
             System.out.println("\n     Welcome " + accountSignedIn.getUsername() + "!\n");
         }
-        System.out.println("\t  New Game [1]");
+        System.out.println("\t    Play [1]");
         System.out.println("\t  Sign In [2]");
         System.out.println("  Create New Account [3]");
         System.out.println("\t Leaderboard [4]");
@@ -76,7 +86,7 @@ public class CardApp {
             if (accountSignedIn == null) {
                 System.out.println("Please sign in or create a new account!");
             } else {
-                cardGame.newGame(accountSignedIn);
+                newOrContinueGame();
             }
         } else if (command.equals("2")) {
             signIn();
@@ -95,19 +105,25 @@ public class CardApp {
         }
     }
 
+    private void newOrContinueGame() {
+        System.out.println("Start new game [1]\nContinue game [2]");
+        String command = input.next();
+        if (command.equals("1")) {
+            cardGame.newGame(accountSignedIn);
+        } else if (command.equals("2")) {
+            cardGame.continueGame(accountSignedIn);
+        } else {
+            System.out.println("Please select a valid option!");
+        }
+    }
+
     // EFFECTS: based off the commands by the user in the game, the user can either pass or play
     public Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
         System.out.println("\nPass [1] or Play [2]");
         String gameCommand = input.next();
         if (gameCommand.equals("1")) {
-            Card lowestCardNum = compCards.get(0);
-            for (int i = 1; i < compCards.size(); i++) {
-                if (compCards.get(i).getIntNum() < lowestCardNum.getIntNum()) {
-                    lowestCardNum = compCards.get(i);
-                }
-            }
-            compCards.remove(compCards.get(compCards.indexOf(lowestCardNum)));
-            lastCardPlayed = lowestCardNum;
+            lastCardPlayed = lowestCardNum(compCards);
+
         } else if (gameCommand.equals("2")) {
             System.out.println("Number: ");
             String selectedNum = input.next();
@@ -115,10 +131,35 @@ public class CardApp {
             String selectedSuit = input.next();
 
             lastCardPlayed = doPTurn(playerCards, selectedNum, selectedSuit, lastCardPlayed, compCards);
+        } else if (gameCommand.equals("q")) {
+            saveGame();
+            return null;
         } else {
             System.out.println("Please select a valid option!");
         }
         return lastCardPlayed;
+    }
+
+    private void saveGame() {
+        try {
+            jsonWriter.open();
+            jsonWriter.write(cardGame);
+            jsonWriter.close();
+            System.out.println("Saved game to " + JSON_STORE);
+        } catch (FileNotFoundException e) {
+            System.out.println("Unable to write to file: " + JSON_STORE);
+        }
+    }
+
+    private Card lowestCardNum(List<Card> compCards) {
+        Card lowestCardNum = compCards.get(0);
+        for (int i = 1; i < compCards.size(); i++) {
+            if (compCards.get(i).getIntNum() < lowestCardNum.getIntNum()) {
+                lowestCardNum = compCards.get(i);
+            }
+        }
+        compCards.remove(compCards.get(compCards.indexOf(lowestCardNum)));
+        return lowestCardNum;
     }
 
     // EFFECTS: checks to see if the game is over and modifies the fields in the signed in accounts according to
@@ -141,7 +182,7 @@ public class CardApp {
     //          asked to choose a card to play and displays the last card played down and
     //          lists the cards that the player has
     public void gameSetUp(List<Card> playerCards, Card lastCardPlayed) {
-        List<String> readableCards = new ArrayList<String>();
+        List<String> readableCards = new ArrayList<>();
         for (int i = 0; i < playerCards.size(); i++) {
             readableCards.add(playerCards.get(i).getNum() + " of " + playerCards.get(i).getSuit());
         }
@@ -208,8 +249,8 @@ public class CardApp {
         String inputtedUsername = input.next();
         System.out.println("Password:");
         String inputtedPassword = input.next();
-        for (int i = 0; i < accountList.size(); i++) {
-            Account ithAccount = accountList.get(i);
+        for (int i = 0; i < accountList.getAccountList().size(); i++) {
+            Account ithAccount = accountList.getAccountList().get(i);
             String ithUsername = ithAccount.getUsername();
             String ithPw = ithAccount.getPw();
             if (ithUsername.equals(inputtedUsername) && ithPw.equals(inputtedPassword)) {
@@ -226,12 +267,12 @@ public class CardApp {
         System.out.println("Username: ");
         String inputtedUsername = input.next();
 
-        if (accountList.size() > 0) {
+        if (accountList.getAccountList().size() > 0) {
             boolean isValidUsername = false;
 
             while (!isValidUsername) {
-                for (int i = 0; i < accountList.size(); i++) {
-                    Account ithAccount = accountList.get(i);
+                for (int i = 0; i < accountList.getAccountList().size(); i++) {
+                    Account ithAccount = accountList.getAccountList().get(i);
                     String ithUsername = ithAccount.getUsername();
                     if (inputtedUsername.equals(ithUsername)) {
                         System.out.println("That username has been taken. Try again!");
@@ -245,7 +286,7 @@ public class CardApp {
         System.out.println("Password: ");
         String password = input.next();
         Account userAccount = new Account(inputtedUsername, password);
-        accountList.add(userAccount);
+        accountList.getAccountList().add(userAccount);
         accountSignedIn = userAccount;
     }
 
@@ -253,12 +294,12 @@ public class CardApp {
     //          to the main menu
     private void showLeaderboard() {
         List<Double> wlrList = new ArrayList<>();
-        if (accountList.size() == 0) {
+        if (accountList.getAccountList().size() == 0) {
             System.out.println("No players on leaderboard yet!");
             return;
         }
-        for (int i = 0; i < accountList.size(); i++) {
-            double ithWinLossRatio = accountList.get(i).calculateRatio();
+        for (int i = 0; i < accountList.getAccountList().size(); i++) {
+            double ithWinLossRatio = accountList.getAccountList().get(i).calculateRatio();
             wlrList.add(ithWinLossRatio);
         }
         Collections.sort(wlrList);
@@ -300,7 +341,7 @@ public class CardApp {
         while (isMyAccRunning) {
             String accountCommand = input.next();
             if (accountCommand.equals("d")) {
-                accountList.remove(accountSignedIn);
+                accountList.getAccountList().remove(accountSignedIn);
                 accountSignedIn = null;
                 isMyAccRunning = false;
             } else if (accountCommand.equals("s")) {
