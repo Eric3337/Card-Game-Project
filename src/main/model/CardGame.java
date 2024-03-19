@@ -12,10 +12,11 @@ import java.util.Random;
 
 public class CardGame implements Writable {
     private CardApp cardApp;
-
     private Account accountSignedIn;
     private List<Card> playerCards;
     private List<Card> compCards;
+    private static int MIN_NUM_OF_CARDS = 10;
+    private static int MAX_NUM_OF_CARDS = 20;
 
     public CardGame(Account accountSignedIn, CardApp cardApp) {
         this.cardApp = cardApp;
@@ -24,10 +25,12 @@ public class CardGame implements Writable {
         this.compCards = new ArrayList<>();
     }
 
+    // EFFECTS: adds given card to player cards
     public void addPlayerCard(Card c) {
         this.playerCards.add(c);
     }
 
+    // EFFECTS: adds given card to computer cards
     public void addCompCard(Card c) {
         this.compCards.add(c);
     }
@@ -39,7 +42,7 @@ public class CardGame implements Writable {
     //          Then, it deals cards to each player and runs the game accordingly
     public void newGame(Account accountSignedIn) {
         Random random = new Random();
-        int numCardsPerPlayer = random.nextInt(2) + 2;
+        int numCardsPerPlayer = random.nextInt(MAX_NUM_OF_CARDS - MIN_NUM_OF_CARDS) + MIN_NUM_OF_CARDS;
 
         dealCards(numCardsPerPlayer, playerCards, compCards);
 
@@ -136,7 +139,7 @@ public class CardGame implements Writable {
     @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("accountSignedInUsername", cardApp.getAccountSignedIn().getId());
+        json.put("accountSignedInUsername", cardApp.getAccountSignedIn().getUsername());
         json.put("playerCards", playerCardsToJson());
         json.put("compCards", compCardsToJson());
         return json;
@@ -160,5 +163,21 @@ public class CardGame implements Writable {
         }
 
         return jsonArray;
+    }
+
+    public CardApp getCardApp() {
+        return cardApp;
+    }
+
+    public Account getAccountSignedIn() {
+        return accountSignedIn;
+    }
+
+    public List<Card> getPlayerCards() {
+        return playerCards;
+    }
+
+    public List<Card> getCompCards() {
+        return compCards;
     }
 }

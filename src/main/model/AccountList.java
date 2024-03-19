@@ -32,14 +32,4 @@ public class AccountList implements Writable {
         json.put("accountList", accountList);
         return json;
     }
-
-//    private JSONArray accountListToJson() {
-//        JSONArray jsonArray = new JSONArray();
-//
-//        for (Account a : accountList) {
-//            jsonArray.put(a.toJson());
-//        }
-//
-//        return jsonArray;
-//    }
 }
