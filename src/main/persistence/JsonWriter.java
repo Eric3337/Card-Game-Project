@@ -1,5 +1,6 @@
 package persistence;
 
+import model.AccountList;
 import model.CardGame;
 import org.json.JSONObject;
 
@@ -25,9 +26,16 @@ public class JsonWriter {
     }
 
     // MODIFIES: this
-    // EFFECTS: writes JSON representation of AccountList to file
-    public void write(CardGame cg) {
+    // EFFECTS: writes JSON representation of card game to file
+    public void writeGame(CardGame cg) {
         JSONObject json = cg.toJson();
+        saveToFile(json.toString(TAB));
+    }
+
+    // MODIFIES: this
+    // EFFECTS: writes JSON representation of accountList to file
+    public void writeAccList(AccountList al) {
+        JSONObject json = al.toJson();
         saveToFile(json.toString(TAB));
     }
 

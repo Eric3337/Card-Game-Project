@@ -2,6 +2,7 @@ package ui;
 
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 import model.Account;
@@ -17,13 +18,16 @@ import persistence.JsonWriter;
 public class CardApp {
     // General structure of displaying the main menu and getting the input from the user
     // was partially taken from the TellerApp that was provided in the edX phase 1 module
-    private static final String JSON_STORE = "./data/cardgame.json";
+    private static final String JSON_STORE_GAME = "./data/cardgame.json";
+    private static final String JSON_STORE_ACCOUNTS = "./data/accountList.json";
     private Scanner input;
     private AccountList accountList;
     private Account accountSignedIn;
     private CardGame cardGame;
-    private JsonWriter jsonWriter;
-    private JsonReader jsonReader;
+    private JsonWriter jsonWriterGame;
+    private JsonReader jsonReaderGame;
+    private JsonWriter jsonWriterAccounts;
+    private JsonReader jsonReaderAccounts;
 
     // EFFECTS: creates a card app runs the CardApp
     public CardApp() throws FileNotFoundException {
@@ -38,8 +42,15 @@ public class CardApp {
         input = new Scanner(System.in);
         input.useDelimiter("\n");
         cardGame = new CardGame(accountSignedIn, this);
-        jsonWriter = new JsonWriter(JSON_STORE);
-        jsonReader = new JsonReader(JSON_STORE);
+        jsonWriterGame = new JsonWriter(JSON_STORE_GAME);
+        jsonReaderGame = new JsonReader(JSON_STORE_GAME);
+        jsonWriterAccounts = new JsonWriter(JSON_STORE_ACCOUNTS);
+        jsonReaderAccounts = new JsonReader(JSON_STORE_ACCOUNTS);
+    }
+
+    // EFFECTS: sets account list to given account list
+    public void setAccountList(AccountList accList) {
+        this.accountList = accList;
     }
 
     // EFFECTS: run's the card game app
@@ -48,6 +59,8 @@ public class CardApp {
         String command;
 
         init();
+
+        loadAccountList();
 
         while (isRunning) {
             displayMainMenu();
@@ -62,6 +75,7 @@ public class CardApp {
         }
 
         System.out.println("Thank you for playing!");
+        saveAccountList();
     }
 
     // EFFECTS: displays the main menu of the game
@@ -111,6 +125,7 @@ public class CardApp {
         if (command.equals("1")) {
             cardGame.newGame(accountSignedIn);
         } else if (command.equals("2")) {
+            loadCardGame(this);
             cardGame.continueGame(accountSignedIn);
         } else {
             System.out.println("Please select a valid option!");
@@ -131,23 +146,64 @@ public class CardApp {
             String selectedSuit = input.next();
 
             lastCardPlayed = doPTurn(playerCards, selectedNum, selectedSuit, lastCardPlayed, compCards);
-        } else if (gameCommand.equals("q")) {
-            saveGame();
-            return null;
         } else {
             System.out.println("Please select a valid option!");
         }
         return lastCardPlayed;
     }
 
+    public boolean isGameQuitManually() {
+        System.out.println("\nKeep playing [p] or quit game? [q]");
+        String gameCommand = input.next();
+        if (gameCommand.equals("q")) {
+            saveGame();
+            return false;
+        }
+        return true;
+    }
+
+    // EFFECTS: saves the card game to file
     private void saveGame() {
         try {
-            jsonWriter.open();
-            jsonWriter.write(cardGame);
-            jsonWriter.close();
-            System.out.println("Saved game to " + JSON_STORE);
+            jsonWriterGame.open();
+            jsonWriterGame.writeGame(cardGame);
+            jsonWriterGame.close();
+            System.out.println("Saved game to " + JSON_STORE_GAME);
         } catch (FileNotFoundException e) {
-            System.out.println("Unable to write to file: " + JSON_STORE);
+            System.out.println("Unable to write to file: " + JSON_STORE_GAME);
+        }
+    }
+
+    // EFFECTS: saves the card game to file
+    private void saveAccountList() {
+        try {
+            jsonWriterAccounts.open();
+            jsonWriterAccounts.writeAccList(accountList);
+            jsonWriterAccounts.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Unable to write to file: " + JSON_STORE_ACCOUNTS);
+        }
+    }
+
+    // MODIFIES: this
+    // EFFECTS: loads workroom from file
+    private void loadCardGame(CardApp cardApp) {
+        try {
+            cardGame = jsonReaderGame.readCardGame(accountList, cardApp);
+            System.out.println("Loaded previous played from " + JSON_STORE_GAME);
+        } catch (IOException e) {
+            System.out.println("Unable to read from file: " + JSON_STORE_GAME);
+        }
+    }
+
+    // MODIFIES: this
+    // EFFECTS: loads workroom from file
+    private void loadAccountList() {
+        try {
+            accountList = jsonReaderAccounts.readAccountList(this);
+            System.out.println("Loaded list of accounts " + JSON_STORE_ACCOUNTS);
+        } catch (IOException e) {
+            System.out.println("Unable to read from file: " + JSON_STORE_ACCOUNTS);
         }
     }
 
@@ -353,5 +409,9 @@ public class CardApp {
                 System.out.println("Please select a valid option!");
             }
         }
+    }
+
+    public Account getAccountSignedIn() {
+        return accountSignedIn;
     }
 }

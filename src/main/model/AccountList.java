@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 // Represents the list of accounts for the game application
-public class AccountList {
+public class AccountList implements Writable {
     private List<Account> accountList;
 
     // EFFECTS: constructs an empty list of accounts
@@ -21,12 +21,25 @@ public class AccountList {
         return accountList;
     }
 
-//    @Override
-//    public JSONObject toJson() {
-//        JSONObject json = new JSONObject();
-//        json.put("name", name);
-//        json.put("thingies", thingiesToJson());
-//        return json;
-//    }
+    // EFFECTS: adds in accounts to list of accounts
+    public void addAccount(Account account) {
+        this.accountList.add(account);
+    }
 
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("accountList", accountList);
+        return json;
+    }
+
+//    private JSONArray accountListToJson() {
+//        JSONArray jsonArray = new JSONArray();
+//
+//        for (Account a : accountList) {
+//            jsonArray.put(a.toJson());
+//        }
+//
+//        return jsonArray;
+//    }
 }

@@ -87,11 +87,12 @@ public class CardGame implements Writable {
             cardApp.gameSetUp(playerCards, lastCardPlayed);
 
             lastCardPlayed = cardApp.executeGameInteraction(playerCards, compCards, lastCardPlayed);
-            if (lastCardPlayed == null) {
-                break;
-            }
 
             isGamePlaying = cardApp.gameOver(playerCards, compCards);
+            if (!isGamePlaying) {
+                break;
+            }
+            isGamePlaying = cardApp.isGameQuitManually();
         }
         if (lastCardPlayed == null) {
             return;
@@ -135,7 +136,7 @@ public class CardGame implements Writable {
     @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("accountSignedIn", accountSignedIn);
+        json.put("accountSignedInUsername", cardApp.getAccountSignedIn().getId());
         json.put("playerCards", playerCardsToJson());
         json.put("compCards", compCardsToJson());
         return json;

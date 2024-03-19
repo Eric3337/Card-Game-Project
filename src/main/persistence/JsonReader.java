@@ -3,6 +3,7 @@ package persistence;
 import model.Account;
 import model.Card;
 import model.CardGame;
+import model.AccountList;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -11,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.stream.Stream;
 
 import org.json.*;
+import ui.CardApp;
 
 // Represents a reader that reads workroom from JSON data stored in file
 // code is from JsonSpecializationDemo
@@ -20,14 +22,6 @@ public class JsonReader {
     // EFFECTS: constructs reader to read from source file
     public JsonReader(String source) {
         this.source = source;
-    }
-
-    // EFFECTS: reads cardgame from file and returns it;
-    // throws IOException if an error occurs reading data from file
-    public CardGame read() throws IOException {
-        String jsonData = readFile(source);
-        JSONObject jsonObject = new JSONObject(jsonData);
-        return parseCardGame(jsonObject);
     }
 
     // EFFECTS: reads source file as string and returns it
@@ -41,17 +35,69 @@ public class JsonReader {
         return contentBuilder.toString();
     }
 
-    // EFFECTS: parses workroom from JSON object and returns it
-    private CardGame parseCardGame(JSONObject jsonObject) {
-        Account accountSignedIn = (Account) jsonObject.get("accountSignedIn");
-        CardGame cg = new CardGame(accountSignedIn, null);
+    // EFFECTS: reads AccountList from file and returns it;
+    // throws IOException if an error occurs reading data from file
+    public AccountList readAccountList(CardApp cardApp) throws IOException {
+        String jsonData = readFile(source);
+        JSONObject jsonObject = new JSONObject(jsonData);
+        return parseAccountList(jsonObject, cardApp);
+    }
+
+    private AccountList parseAccountList(JSONObject jsonObject, CardApp cardApp) {
+        AccountList accountList = addAccounts(cardApp, jsonObject);
+        return accountList;
+    }
+
+    // MODIFIES: cardApp
+    // EFFECTS: parses nextAccount from JSON object and adds them to accountList
+    private AccountList addAccounts(CardApp cardApp, JSONObject jsonObject) {
+        JSONArray jsonArray = jsonObject.getJSONArray("accountList");
+        AccountList accountList = new AccountList();
+        for (Object json : jsonArray) {
+            JSONObject nextAccount = (JSONObject) json;
+            accountList.addAccount(jsonToAccount(cardApp, nextAccount));
+        }
+        return accountList;
+    }
+
+    private Account jsonToAccount(CardApp cardApp, JSONObject jsonObject) {
+        int gamesLost = (int) jsonObject.get("gamesLost");
+        String pw = (String) jsonObject.get("pw");
+        int id = (int) jsonObject.get("id");
+        int totalGamesPlayed = (int) jsonObject.get("totalGamesPlayed");
+        String username = (String) jsonObject.get("username");
+        int gamesWon = (int) jsonObject.get("gamesWon");
+
+        Account account = new Account(id, username, pw, gamesWon, gamesLost, totalGamesPlayed);
+        return account;
+    }
+
+    // EFFECTS: reads cardgame from file and returns it;
+    // throws IOException if an error occurs reading data from file
+    public CardGame readCardGame(AccountList accountList, CardApp cardApp) throws IOException {
+        String jsonData = readFile(source);
+        JSONObject jsonObject = new JSONObject(jsonData);
+        return parseCardGame(jsonObject, accountList, cardApp);
+    }
+
+    // EFFECTS: parses card game from JSON object and returns it
+    private CardGame parseCardGame(JSONObject jsonObject, AccountList accountList, CardApp cardApp) {
+        String savedAccountUsername = (String) jsonObject.get("accountSignedInUsername");
+        Account accountSignedIn = null;
+        for (Account a : accountList.getAccountList()) {
+            if (a.getUsername() == savedAccountUsername) {
+                accountSignedIn = a;
+                break;
+            }
+        }
+        CardGame cg = new CardGame(accountSignedIn, cardApp);
         addPlayerCards(cg, jsonObject);
         addCompCards(cg, jsonObject);
         return cg;
     }
 
     // MODIFIES: wr
-    // EFFECTS: parses thingies from JSON object and adds them to workroom
+    // EFFECTS: parses nextCard from JSON object and adds them to playerCards
     private void addPlayerCards(CardGame cg, JSONObject jsonObject) {
         JSONArray jsonArray = jsonObject.getJSONArray("playerCards");
         for (Object json : jsonArray) {
@@ -61,9 +107,9 @@ public class JsonReader {
     }
 
     // MODIFIES: wr
-    // EFFECTS: parses thingy from JSON object and adds it to workroom
+    // EFFECTS: parses card from JSON object and adds it to playerCards
     private void addPlayerCard(CardGame cg, JSONObject jsonObject) {
-        int num = Integer.valueOf(jsonObject.getString("int"));
+        int num = (int) jsonObject.get("int");
         String suit = jsonObject.getString("suit");
         Card card = new Card(num, suit);
         cg.addPlayerCard(card);
@@ -78,7 +124,7 @@ public class JsonReader {
     }
 
     private void addCompCard(CardGame cg, JSONObject jsonObject) {
-        int num = Integer.valueOf(jsonObject.getString("int"));
+        int num = (int) jsonObject.get("int");
         String suit = jsonObject.getString("suit");
         Card card = new Card(num, suit);
         cg.addCompCard(card);
