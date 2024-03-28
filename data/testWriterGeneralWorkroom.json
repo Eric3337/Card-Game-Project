@@ -1,0 +1,16 @@
+{"accountList": [
+    {
+        "gamesLost": 0,
+        "pw": "123",
+        "totalGamesPlayed": 0,
+        "gamesWon": 0,
+        "username": "User1"
+    },
+    {
+        "gamesLost": 0,
+        "pw": "456",
+        "totalGamesPlayed": 0,
+        "gamesWon": 0,
+        "username": "User2"
+    }
+]}
