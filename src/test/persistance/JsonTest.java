@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JsonTest {
     protected void checkAccount(int id, String user, String pw, int gamesWon, int gamesLost, int total, Account acc) {
-        assertEquals(id, acc.getId());
         assertEquals(user, acc.getUsername());
         assertEquals(pw, acc.getPw());
         assertEquals(gamesWon, acc.getGamesWon());

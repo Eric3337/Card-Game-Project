@@ -8,8 +8,6 @@ import persistence.Writable;
 //          the account can also show the win loss ratio which is used to calculate the account's
 //          position on the leaderboard
 public class Account {
-    private static int nextAccId = 0;
-    private int id;
     private String username;
     private String pw;
     private Integer gamesWon;
@@ -20,7 +18,6 @@ public class Account {
     // EFFECTS: creates an account with a unique id, username, password and sets
     //          games won, lost, and total games played to zero
     public Account(String accName, String password) {
-        id = nextAccId++;
         username = accName;
         pw = password;
         gamesWon = 0;
@@ -28,8 +25,7 @@ public class Account {
         totalGamesPlayed = 0;
     }
 
-    public Account(int id, String username, String pw, Integer gamesWon, Integer gamesLost, Integer totalGamesPlayed) {
-        this.id = id;
+    public Account(String username, String pw, Integer gamesWon, Integer gamesLost, Integer totalGamesPlayed) {
         this.username = username;
         this.pw = pw;
         this.gamesWon = gamesWon;
@@ -70,10 +66,6 @@ public class Account {
 
     public void playedAGame() {
         totalGamesPlayed++;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getUsername() {

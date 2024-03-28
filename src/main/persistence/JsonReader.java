@@ -63,12 +63,11 @@ public class JsonReader {
     private Account jsonToAccount(CardApp cardApp, JSONObject jsonObject) {
         int gamesLost = (int) jsonObject.get("gamesLost");
         String pw = (String) jsonObject.get("pw");
-        int id = (int) jsonObject.get("id");
         int totalGamesPlayed = (int) jsonObject.get("totalGamesPlayed");
         String username = (String) jsonObject.get("username");
         int gamesWon = (int) jsonObject.get("gamesWon");
 
-        Account account = new Account(id, username, pw, gamesWon, gamesLost, totalGamesPlayed);
+        Account account = new Account(username, pw, gamesWon, gamesLost, totalGamesPlayed);
         return account;
     }
 

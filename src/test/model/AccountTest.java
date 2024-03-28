@@ -15,7 +15,6 @@ class AccountTest {
 
     @Test
     void testAccount() {
-        assertEquals(1, account.getId());
         assertEquals("User", account.getUsername());
         assertEquals("123", account.getPw());
         assertEquals(0, account.getGamesWon());

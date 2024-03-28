@@ -5,10 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
-import model.Account;
-import model.Card;
-import model.CardGame;
-import model.AccountList;
+import model.*;
 import persistence.JsonReader;
 import persistence.JsonWriter;
 
@@ -21,9 +18,15 @@ public class CardApp {
     private static final String JSON_STORE_GAME = "./data/cardgame.json";
     private static final String JSON_STORE_ACCOUNTS = "./data/accountList.json";
     private Scanner input;
+
     private AccountList accountList;
     private Account accountSignedIn;
     private CardGame cardGame;
+    private CardHandler cardHandler;
+    private TurnHandler turnHandler;
+    private LeaderBoardSorter leaderBoardSorter;
+    private MessagePrinter msgPrinter;
+
     private JsonWriter jsonWriterGame;
     private JsonReader jsonReaderGame;
     private JsonWriter jsonWriterAccounts;
@@ -38,14 +41,19 @@ public class CardApp {
     // EFFECTS: initializes the fields (accountSignedIn was not initialized here since
     //          it needs to be null at first
     private void init() {
-        accountList = new AccountList();
-        input = new Scanner(System.in);
-        input.useDelimiter("\n");
-        cardGame = new CardGame(accountSignedIn, this);
-        jsonWriterGame = new JsonWriter(JSON_STORE_GAME);
-        jsonReaderGame = new JsonReader(JSON_STORE_GAME);
-        jsonWriterAccounts = new JsonWriter(JSON_STORE_ACCOUNTS);
-        jsonReaderAccounts = new JsonReader(JSON_STORE_ACCOUNTS);
+        this.accountList = new AccountList();
+        this.input = new Scanner(System.in);
+        this.input.useDelimiter("\n");
+        this.cardGame = new CardGame(accountSignedIn, this);
+        this.cardHandler = new CardHandler();
+        this.turnHandler = new TurnHandler();
+        this.leaderBoardSorter = new LeaderBoardSorter();
+        this.msgPrinter = new MessagePrinter();
+
+        this.jsonWriterGame = new JsonWriter(JSON_STORE_GAME);
+        this.jsonReaderGame = new JsonReader(JSON_STORE_GAME);
+        this.jsonWriterAccounts = new JsonWriter(JSON_STORE_ACCOUNTS);
+        this.jsonReaderAccounts = new JsonReader(JSON_STORE_ACCOUNTS);
     }
 
     // EFFECTS: sets account list to given account list
@@ -133,11 +141,12 @@ public class CardApp {
     }
 
     // EFFECTS: based off the commands by the user in the game, the user can either pass or play
-    public Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
+    public Card executeGameInteraction(List<Card> playerCards,
+                                       List<Card> compCards, Card lastCardPlayed) {
         System.out.println("\nPass [1] or Play [2]");
         String gameCommand = input.next();
         if (gameCommand.equals("1")) {
-            lastCardPlayed = lowestCardNum(compCards);
+            return cardHandler.compLowestCardToPlay(compCards);
 
         } else if (gameCommand.equals("2")) {
             System.out.println("Number: ");
@@ -145,11 +154,12 @@ public class CardApp {
             System.out.println("Suit: ");
             String selectedSuit = input.next();
 
-            lastCardPlayed = doPTurn(playerCards, selectedNum, selectedSuit, lastCardPlayed, compCards);
+            return turnHandler.doPlayerAndCompTurn(playerCards, compCards, selectedNum,
+                    selectedSuit, lastCardPlayed);
         } else {
             System.out.println("Please select a valid option!");
+            return lastCardPlayed;
         }
-        return lastCardPlayed;
     }
 
     public boolean isGameQuitManually() {
@@ -207,17 +217,6 @@ public class CardApp {
         }
     }
 
-    private Card lowestCardNum(List<Card> compCards) {
-        Card lowestCardNum = compCards.get(0);
-        for (int i = 1; i < compCards.size(); i++) {
-            if (compCards.get(i).getIntNum() < lowestCardNum.getIntNum()) {
-                lowestCardNum = compCards.get(i);
-            }
-        }
-        compCards.remove(compCards.get(compCards.indexOf(lowestCardNum)));
-        return lowestCardNum;
-    }
-
     // EFFECTS: checks to see if the game is over and modifies the fields in the signed in accounts according to
     //          whether the account has won or lost the game
     public boolean gameOver(List<Card> playerCards, List<Card> compCards) {
@@ -238,10 +237,6 @@ public class CardApp {
     //          asked to choose a card to play and displays the last card played down and
     //          lists the cards that the player has
     public void gameSetUp(List<Card> playerCards, Card lastCardPlayed) {
-        List<String> readableCards = new ArrayList<>();
-        for (int i = 0; i < playerCards.size(); i++) {
-            readableCards.add(playerCards.get(i).getNum() + " of " + playerCards.get(i).getSuit());
-        }
         System.out.println("--------------------\nOpponent\n");
         if (lastCardPlayed == null) {
             System.out.println("Opponent last card played: \n");
@@ -251,52 +246,7 @@ public class CardApp {
         }
         System.out.println("\nYour cards: ");
 
-        for (int i = 0; i < readableCards.size(); i++) {
-            System.out.println(readableCards.get(i));
-        }
-    }
-
-    // EFFECTS: does the player's turn checks to see whether the card selected by player exists in hand and
-    //          whether selNum > lastCardPlayed.getIntNum()
-    private Card doPTurn(List<Card> pcards, String selNum, String selSuit, Card lastCardPlayed, List<Card> ccards) {
-        for (int i = 0; i < pcards.size(); i++) {
-            if (pcards.get(i).getNum().equals(selNum) && pcards.get(i).getSuit().equals(selSuit)) {
-                if (lastCardPlayed == null) {
-                    lastCardPlayed = pcards.get(i);
-                    pcards.remove(pcards.get(i));
-                    lastCardPlayed = doCompTurn(ccards, lastCardPlayed);
-                    return lastCardPlayed;
-                }
-                if (Integer.parseInt(selNum) > lastCardPlayed.getIntNum()) {
-                    lastCardPlayed = pcards.get(i);
-                    pcards.remove(pcards.get(i));
-                    lastCardPlayed = doCompTurn(ccards, lastCardPlayed);
-                    return lastCardPlayed;
-                }
-                System.out.println("Please select a card number greater than last played card!");
-                return lastCardPlayed;
-            }
-        }
-        System.out.println("Please select a card in your hand!");
-        return lastCardPlayed;
-    }
-
-    // EFFECTS: does the computer turn by checking to see if there is a larger card than the last played card
-    //          and plays that card, otherwise opponent will print out "pass"
-    private Card doCompTurn(List<Card> ccards, Card lastCardPlayed) {
-        if (lastCardPlayed == null) {
-            return null;
-        } else {
-            for (int i = 0; i < ccards.size(); i++) {
-                if (ccards.get(i).getIntNum() > lastCardPlayed.getIntNum()) {
-                    lastCardPlayed = ccards.get(i);
-                    ccards.remove(ccards.get(i));
-                    return lastCardPlayed;
-                }
-            }
-        }
-        System.out.println("Opponent: Pass :(");
-        return null;
+        cardHandler.sortCardsForPlayer(playerCards);
     }
 
     // EFFECTS: signs in a user into their account
@@ -305,13 +255,12 @@ public class CardApp {
         String inputtedUsername = input.next();
         System.out.println("Password:");
         String inputtedPassword = input.next();
-        for (int i = 0; i < accountList.getAccountList().size(); i++) {
-            Account ithAccount = accountList.getAccountList().get(i);
-            String ithUsername = ithAccount.getUsername();
-            String ithPw = ithAccount.getPw();
+        for (Account account : accountList.getAccountList()) {
+            String ithUsername = account.getUsername();
+            String ithPw = account.getPw();
             if (ithUsername.equals(inputtedUsername) && ithPw.equals(inputtedPassword)) {
                 System.out.println("Thank you for signing in!");
-                accountSignedIn = ithAccount;
+                accountSignedIn = account;
                 return;
             }
         }
@@ -327,9 +276,8 @@ public class CardApp {
             boolean isValidUsername = false;
 
             while (!isValidUsername) {
-                for (int i = 0; i < accountList.getAccountList().size(); i++) {
-                    Account ithAccount = accountList.getAccountList().get(i);
-                    String ithUsername = ithAccount.getUsername();
+                for (Account account : accountList.getAccountList()) {
+                    String ithUsername = account.getUsername();
                     if (inputtedUsername.equals(ithUsername)) {
                         System.out.println("That username has been taken. Try again!");
                         return;
@@ -349,27 +297,14 @@ public class CardApp {
     // EFFECTS: show the leaderboard with the user's position on the leaderboard, with the option to return back
     //          to the main menu
     private void showLeaderboard() {
-        List<Double> wlrList = new ArrayList<>();
-        if (accountList.getAccountList().size() == 0) {
-            System.out.println("No players on leaderboard yet!");
-            return;
-        }
-        for (int i = 0; i < accountList.getAccountList().size(); i++) {
-            double ithWinLossRatio = accountList.getAccountList().get(i).calculateRatio();
-            wlrList.add(ithWinLossRatio);
-        }
-        Collections.sort(wlrList);
-        Collections.reverse(wlrList);
-        System.out.println(wlrList);
-        int accPos = wlrList.indexOf(accountSignedIn.calculateRatio()) + 1;
-        System.out.println("My position is: " + accPos);
-        System.out.println("\nBack [b]");
-
+        leaderBoardSorter.sortLeaderBoard(accountList, accountSignedIn);
         showLeaderboardMenu();
     }
 
     // EFFECTS: shows the leaderboard menu and takes in user command
     private void showLeaderboardMenu() {
+        msgPrinter.printMessage("\nBack [b]");
+
         boolean isLeaderboardRunning = true;
         while (isLeaderboardRunning) {
             String leaderboardCommand = input.next();

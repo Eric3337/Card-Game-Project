@@ -13,7 +13,7 @@ public class AccountList implements Writable {
 
     // EFFECTS: constructs an empty list of accounts
     public AccountList() {
-        accountList = new ArrayList<>();
+        this.accountList = new ArrayList<>();
     }
 
     // EFFECTS: returns current list of accounts

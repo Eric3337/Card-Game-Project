@@ -15,6 +15,7 @@ public class CardGame implements Writable {
     private Account accountSignedIn;
     private List<Card> playerCards;
     private List<Card> compCards;
+    private CardHandler cardHandler;
     private static int MIN_NUM_OF_CARDS = 10;
     private static int MAX_NUM_OF_CARDS = 20;
 
@@ -23,6 +24,7 @@ public class CardGame implements Writable {
         this.accountSignedIn = accountSignedIn;
         this.playerCards = new ArrayList<>();
         this.compCards = new ArrayList<>();
+        this.cardHandler = new CardHandler();
     }
 
     // EFFECTS: adds given card to player cards
@@ -44,7 +46,7 @@ public class CardGame implements Writable {
         Random random = new Random();
         int numCardsPerPlayer = random.nextInt(MAX_NUM_OF_CARDS - MIN_NUM_OF_CARDS) + MIN_NUM_OF_CARDS;
 
-        dealCards(numCardsPerPlayer, playerCards, compCards);
+        cardHandler.dealCards(numCardsPerPlayer, playerCards, compCards);
 
         runGame(playerCards, compCards, accountSignedIn);
     }
@@ -53,28 +55,6 @@ public class CardGame implements Writable {
     //          Then, it deals cards to each player and runs the game accordingly
     public void continueGame(Account accountSignedIn) {
         runGame(playerCards, compCards, accountSignedIn);
-    }
-
-    // EFFECTS: deals cards to both computer opponent and player ensuring that there are the correct number of
-    //          cards for each player and with no duplicates in each deck
-    public void dealCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
-
-        for (int i = 0; i < numCardsPerPlayer; i++) {
-            Card randPCard = new Card();
-            Card randCCard = new Card();
-
-            if (playerCards.size() == 0) {
-                playerCards.add(randPCard);
-                compCards.add(randCCard);
-            }
-            if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
-                playerCards.add(randPCard);
-            }
-            if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
-                compCards.add(randCCard);
-            }
-        }
-        checkValidNumOfCards(numCardsPerPlayer, playerCards, compCards);
     }
 
     // EFFECTS: runs a game of cards based off the rules of the game and which cards the player has
@@ -103,37 +83,6 @@ public class CardGame implements Writable {
         this.playerCards.clear();
         this.compCards.clear();
         accountSignedIn.playedAGame();
-    }
-
-    // EFFECTS checks whether a card is in a hand
-    public boolean isRandCardInHand(List<Card> cardsInHand, Card randomCard) {
-        for (Card currCard : cardsInHand) {
-            int currentCardNum = currCard.getIntNum();
-            String currentCardSuit = currCard.getSuit();
-            if (randomCard.getIntNum() == currentCardNum && randomCard.getSuit().equals(currentCardSuit)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // EFFECTS: checks whether there are the correct number of cards in each hand
-    private void checkValidNumOfCards(int numCardsPerPlayer, List<Card> playerCards, List<Card> compCards) {
-        while (playerCards.size() < numCardsPerPlayer || compCards.size() < numCardsPerPlayer) {
-            Card randPCard = new Card();
-            Card randCCard = new Card();
-            if (playerCards.size() < numCardsPerPlayer) {
-                if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
-                    playerCards.add(randPCard);
-                }
-            }
-
-            if (compCards.size() < numCardsPerPlayer) {
-                if (!isRandCardInHand(playerCards, randCCard) && !isRandCardInHand(compCards, randCCard)) {
-                    compCards.add(randCCard);
-                }
-            }
-        }
     }
 
     @Override
