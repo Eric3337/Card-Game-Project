@@ -141,9 +141,8 @@ public class CardApp {
     }
 
     // EFFECTS: based off the commands by the user in the game, the user can either pass or play
-    public Card executeGameInteraction(List<Card> playerCards,
-                                       List<Card> compCards, Card lastCardPlayed) {
-        System.out.println("\nPass [1] or Play [2]");
+    public Card executeGameInteraction(List<Card> playerCards, List<Card> compCards, Card lastCardPlayed) {
+        System.out.println("\nPass [1] or Play [2] or Quit Game [3]");
         String gameCommand = input.next();
         if (gameCommand.equals("1")) {
             return cardHandler.compLowestCardToPlay(compCards);
@@ -156,20 +155,12 @@ public class CardApp {
 
             return turnHandler.doPlayerAndCompTurn(playerCards, compCards, selectedNum,
                     selectedSuit, lastCardPlayed);
+        } else if (gameCommand.equals("3")) {
+            return new Card(15, "breakCard");
         } else {
             System.out.println("Please select a valid option!");
             return lastCardPlayed;
         }
-    }
-
-    public boolean isGameQuitManually() {
-        System.out.println("\nKeep playing [p] or quit game? [q]");
-        String gameCommand = input.next();
-        if (gameCommand.equals("q")) {
-            saveGame();
-            return false;
-        }
-        return true;
     }
 
     // EFFECTS: saves the card game to file

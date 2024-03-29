@@ -75,7 +75,9 @@ public class CardGame implements Writable {
             if (!isGamePlaying) {
                 break;
             }
-            isGamePlaying = cardApp.isGameQuitManually();
+            if (lastCardPlayed != null) {
+                isGamePlaying = !lastCardPlayed.getSuit().equals("breakCard");
+            }
         }
         if (lastCardPlayed == null) {
             return;

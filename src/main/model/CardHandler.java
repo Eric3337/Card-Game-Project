@@ -43,8 +43,10 @@ public class CardHandler {
             Card randPCard = new Card();
             Card randCCard = new Card();
 
-            playerCards.add(randPCard);
-            compCards.add(randCCard);
+            if (playerCards.size() == 0) {
+                playerCards.add(randPCard);
+                compCards.add(randCCard);
+            }
 
             if (!isRandCardInHand(playerCards, randPCard) && !isRandCardInHand(compCards, randPCard)) {
                 playerCards.add(randPCard);
