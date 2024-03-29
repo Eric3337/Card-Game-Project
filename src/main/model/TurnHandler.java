@@ -36,7 +36,7 @@ public class TurnHandler {
 
     // EFFECTS: does the computer turn by checking to see if there is a larger card than the last played card
     //          and plays that card, otherwise opponent will print out "pass"
-    private Card doCompTurn(List<Card> compCards, Card lastCardPlayed) {
+    public Card doCompTurn(List<Card> compCards, Card lastCardPlayed) {
         if (lastCardPlayed == null) {
             return null;
         } else {
