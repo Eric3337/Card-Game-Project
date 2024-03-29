@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TurnHandlerTest {
     private TurnHandler testTurnHandler;
-    private CardHandler testCardHandler;
     private List<Card> testPlayerCards;
     private List<Card> testCompCards;
     private Card card1;

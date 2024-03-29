@@ -7,6 +7,7 @@ import java.util.*;
 public class LeaderBoardSorter {
     private MessagePrinter msgPrinter;
 
+
     public LeaderBoardSorter() {
         this.msgPrinter = new MessagePrinter();
     }
