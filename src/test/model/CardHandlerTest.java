@@ -74,7 +74,7 @@ public class CardHandlerTest {
     @Test
     void testCheckValidNumOfCardsWithSomeInitialCardsInDecks() {
         testPlayerCards.add(card1);
-        testPlayerCards.add(card1);
+        testPlayerCards.add(card3);
         testCompCards.add(card2);
         testCardHandler.checkValidNumOfCards(2, testPlayerCards, testCompCards);
         assertEquals(2, testCardHandler.getPlayerCards().size());

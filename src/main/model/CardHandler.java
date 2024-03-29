@@ -4,7 +4,7 @@ import ui.MessagePrinter;
 
 import java.util.*;
 
-// Represents a handler that can choose the lowest card for the computer when player passes,
+// Represents a card handler that can choose the lowest card for the computer when player passes,
 //          deal cards to both player and computer with no duplicate in both hands,
 //          sort and order player cards
 public class CardHandler {
