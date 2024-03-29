@@ -76,8 +76,8 @@ public class CardHandlerTest {
         testPlayerCards.add(card1);
         testPlayerCards.add(card1);
         testCompCards.add(card2);
-        testCardHandler.checkValidNumOfCards(3, testPlayerCards, testCompCards);
-        assertEquals(3, testCardHandler.getPlayerCards().size());
-        assertEquals(3, testCardHandler.getCompCards().size());
+        testCardHandler.checkValidNumOfCards(2, testPlayerCards, testCompCards);
+        assertEquals(2, testCardHandler.getPlayerCards().size());
+        assertEquals(2, testCardHandler.getCompCards().size());
     }
 }
