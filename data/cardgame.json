@@ -1,0 +1,119 @@
+{
+    "playerCards": [
+        {
+            "suit": "diamonds",
+            "int": 10
+        },
+        {
+            "suit": "diamonds",
+            "int": 4
+        },
+        {
+            "suit": "spades",
+            "int": 7
+        },
+        {
+            "suit": "hearts",
+            "int": 9
+        },
+        {
+            "suit": "clubs",
+            "int": 6
+        },
+        {
+            "suit": "clubs",
+            "int": 3
+        },
+        {
+            "suit": "clubs",
+            "int": 14
+        },
+        {
+            "suit": "hearts",
+            "int": 6
+        },
+        {
+            "suit": "diamonds",
+            "int": 7
+        },
+        {
+            "suit": "spades",
+            "int": 8
+        },
+        {
+            "suit": "diamonds",
+            "int": 5
+        },
+        {
+            "suit": "clubs",
+            "int": 4
+        },
+        {
+            "suit": "hearts",
+            "int": 8
+        },
+        {
+            "suit": "clubs",
+            "int": 12
+        }
+    ],
+    "accountSignedInUsername": "eric",
+    "compCards": [
+        {
+            "suit": "clubs",
+            "int": 10
+        },
+        {
+            "suit": "diamonds",
+            "int": 6
+        },
+        {
+            "suit": "diamonds",
+            "int": 3
+        },
+        {
+            "suit": "hearts",
+            "int": 4
+        },
+        {
+            "suit": "clubs",
+            "int": 11
+        },
+        {
+            "suit": "hearts",
+            "int": 12
+        },
+        {
+            "suit": "spades",
+            "int": 9
+        },
+        {
+            "suit": "hearts",
+            "int": 13
+        },
+        {
+            "suit": "hearts",
+            "int": 10
+        },
+        {
+            "suit": "spades",
+            "int": 12
+        },
+        {
+            "suit": "spades",
+            "int": 5
+        },
+        {
+            "suit": "clubs",
+            "int": 9
+        },
+        {
+            "suit": "spades",
+            "int": 3
+        },
+        {
+            "suit": "diamonds",
+            "int": 14
+        }
+    ]
+}
