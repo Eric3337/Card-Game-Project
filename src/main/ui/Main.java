@@ -1,6 +1,7 @@
 package ui;
 
 import model.*;
+import model.Event;
 import ui.options.CreateNewAccountWindow;
 import ui.options.LeaderboardWindow;
 import ui.options.PlayOrContinueWindow;
@@ -14,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 
 public class Main extends JFrame implements ActionListener {
@@ -48,6 +48,8 @@ public class Main extends JFrame implements ActionListener {
 
     private SignInWindow signInWindow;
 
+    private EventLog eventLog;
+
     public Main() {
         super("Da Niang Niang");
         initializeFields();
@@ -67,6 +69,8 @@ public class Main extends JFrame implements ActionListener {
         this.jsonReaderGame = new JsonReader(JSON_STORE_GAME);
         this.jsonWriterAccounts = new JsonWriter(JSON_STORE_ACCOUNTS);
         this.jsonReaderAccounts = new JsonReader(JSON_STORE_ACCOUNTS);
+
+        this.eventLog = EventLog.getInstance();
     }
 
     private void setJFrameSettings() {
@@ -167,6 +171,10 @@ public class Main extends JFrame implements ActionListener {
             loadAccountList();
         }
         if (e.getSource() == quitButton) {
+            for (Event event : eventLog) {
+                System.out.println(event.getDescription() + " at "
+                        + "(" + event.getDate() + ")");
+            }
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
     }
@@ -204,11 +212,11 @@ public class Main extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         new Main();
-        try {
-            new CardApp();
-        } catch (FileNotFoundException e) {
-            System.out.println("Unable to run application: file not found");
-        }
+//        try {
+//            new CardApp();
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Unable to run application: file not found");
+//        }
     }
 
     public Account getAccountSignedIn() {

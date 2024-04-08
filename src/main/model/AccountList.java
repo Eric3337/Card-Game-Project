@@ -10,10 +10,12 @@ import java.util.ArrayList;
 // Represents the list of accounts for the game application
 public class AccountList implements Writable {
     private List<Account> accountList;
+    private EventLog eventLog;
 
     // EFFECTS: constructs an empty list of accounts
     public AccountList() {
         this.accountList = new ArrayList<>();
+        this.eventLog = EventLog.getInstance();
     }
 
     // EFFECTS: returns current list of accounts
@@ -24,6 +26,8 @@ public class AccountList implements Writable {
     // EFFECTS: adds in accounts to list of accounts
     public void addAccount(Account account) {
         this.accountList.add(account);
+        eventLog.logEvent(new Event("Added user: " + account.getUsername()
+                + " to list of accounts."));
     }
 
     @Override

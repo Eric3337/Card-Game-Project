@@ -40,3 +40,11 @@ where the system can look through it easily.
 - As a user, I want to be able to load my current game playing from file (if I choose so).
 - As a user, I want to be able to add multiple accounts to an account list.
 - As a user, I want to be able to load and save the state of a card game.
+
+Phase 4: Task 2
+- Create an account with username "User1", you will get a log that says
+"Added user: User1 to list of accounts. at (Day Month Time Timezone 2024)".
+- Create an account with username "User2", you will get a log that says
+  "Added user: User2 to list of accounts. at (Day Month Time Timezone 2024)".
+- Select Leaderboard to log the following: 
+"List of accounts used for ordering accounts by win loss ratio. at (Day Month Time Timezone 2024)"

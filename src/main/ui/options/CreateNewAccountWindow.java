@@ -82,7 +82,7 @@ public class CreateNewAccountWindow extends JFrame implements ActionListener {
             }
         }
         Account userAccount = new Account(inputtedUsername.getText(), inputtedPassword.getText());
-        accountList.getAccountList().add(userAccount);
+        accountList.addAccount(userAccount);
         accountSignedIn = userAccount;
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }

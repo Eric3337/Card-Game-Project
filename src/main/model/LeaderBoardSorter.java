@@ -12,9 +12,12 @@ public class LeaderBoardSorter {
     private AccountList accountList;
     private Account accountSignedIn;
 
+    private EventLog eventLog;
+
 
     public LeaderBoardSorter() {
         this.msgPrinter = new MessagePrinter();
+        eventLog = EventLog.getInstance();
     }
 
     public void sortLeaderBoard(AccountList accList, Account accSignedIn) {
@@ -26,6 +29,7 @@ public class LeaderBoardSorter {
             return;
         }
 
+        eventLog.logEvent(new Event("List of accounts used for ordering accounts by win loss ratio."));
         orderAccounts(accountList);
     }
 

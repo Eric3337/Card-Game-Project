@@ -14,6 +14,8 @@ public class Account {
     private Integer gamesLost;
     private Integer totalGamesPlayed;
 
+    private EventLog eventLog;
+
     // MODIFIES: this
     // EFFECTS: creates an account with a unique id, username, password and sets
     //          games won, lost, and total games played to zero
@@ -23,6 +25,7 @@ public class Account {
         gamesWon = 0;
         gamesLost = 0;
         totalGamesPlayed = 0;
+        this.eventLog = EventLog.getInstance();
     }
 
     public Account(String username, String pw, Integer gamesWon, Integer gamesLost, Integer totalGamesPlayed) {
@@ -31,6 +34,7 @@ public class Account {
         this.gamesWon = gamesWon;
         this.gamesLost = gamesLost;
         this.totalGamesPlayed = totalGamesPlayed;
+        this.eventLog = EventLog.getInstance();
     }
 
     // EFFECTS: calculates the win loss ratio, results is a double type
@@ -44,28 +48,19 @@ public class Account {
         }
     }
 
-//    @Override
-//    public JSONObject toJson() {
-//        JSONObject json = new JSONObject();
-//        json.put("id", id);
-//        json.put("username", username);
-//        json.put("password", pw);
-//        json.put("gamesWon", gamesWon);
-//        json.put("gamesLost", gamesLost);
-//        json.put("totalGamesPlayed", totalGamesPlayed);
-//        return json;
-//    }
-
     public void wonAGame() {
         gamesWon++;
+        eventLog.logEvent(new Event(getUsername() + " has won a game."));
     }
 
     public void lostAGame() {
         gamesLost++;
+        eventLog.logEvent(new Event(getUsername() + " has lost a game."));
     }
 
     public void playedAGame() {
         totalGamesPlayed++;
+        eventLog.logEvent(new Event(getUsername() + " has played a game."));
     }
 
     public String getUsername() {
