@@ -1,43 +1,31 @@
 package ui;
 
-import model.*;
+import model.AccountList;
+import model.Account;
+import model.LeaderBoardSorter;
+import model.EventLog;
 import model.Event;
 import ui.options.CreateNewAccountWindow;
-import ui.options.LeaderboardWindow;
 import ui.options.PlayOrContinueWindow;
 import ui.options.SignInWindow;
-import persistence.JsonReader;
-import persistence.JsonWriter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.io.FileNotFoundException;
 
 
 public class Main extends JFrame implements ActionListener {
     private static final int FRAME_WIDTH = 1000;
     private static final int FRAME_HEIGHT = 750;
 
-    private static final String JSON_STORE_GAME = "./data/cardgame.json";
-    private static final String JSON_STORE_ACCOUNTS = "./data/accountList.json";
-
     private AccountList accountList;
     private Account accountSignedIn;
 
-    private CardGame cardGame;
     private CardApp cardApp;
 
-    private CardHandler cardHandler;
-    private TurnHandler turnHandler;
     private LeaderBoardSorter leaderBoardSorter;
-
-    private JsonWriter jsonWriterGame;
-    private JsonReader jsonReaderGame;
-    private JsonWriter jsonWriterAccounts;
-    private JsonReader jsonReaderAccounts;
 
     private JButton playButton;
     private JButton signInButton;
@@ -59,16 +47,8 @@ public class Main extends JFrame implements ActionListener {
     private void initializeFields() {
         this.accountList = new AccountList();
         this.accountSignedIn = new Account("eric", "123");
-        this.cardGame = new CardGame(accountSignedIn, cardApp);
-        this.cardHandler = new CardHandler();
         this.cardApp = new CardApp("test");
-        this.turnHandler = new TurnHandler();
         this.leaderBoardSorter = new LeaderBoardSorter();
-
-        this.jsonWriterGame = new JsonWriter(JSON_STORE_GAME);
-        this.jsonReaderGame = new JsonReader(JSON_STORE_GAME);
-        this.jsonWriterAccounts = new JsonWriter(JSON_STORE_ACCOUNTS);
-        this.jsonReaderAccounts = new JsonReader(JSON_STORE_ACCOUNTS);
 
         this.eventLog = EventLog.getInstance();
     }

@@ -48,3 +48,15 @@ Phase 4: Task 2
   "Added user: User2 to list of accounts. at (Day Month Time Timezone 2024)".
 - Select Leaderboard to log the following: 
 "List of accounts used for ordering accounts by win loss ratio at (Day Month Time Timezone 2024)"
+
+Phase 4: Task 3
+- I think I would try to create more extend and implementation relationships since there
+seems to be many associations going into the Card class and the Account and AccountList class. I would 
+definitely have added in better ways for classes, especially the cardapp class to only 
+handle the ui. Although I did some refactoring, some of the model class still
+used the class MessagePrinter to print out messages that proved to be difficult
+when using the model classes for the gui. I think for next time, making classes
+and assigning classes their specific roles and nothing else will prove greatly.
+Also, I think I would mostly definitely use the design patterns (composite, observer, 
+and Singleton) to better the project. In general, reduce association coupling 
+, increase cohesion and abstraction.

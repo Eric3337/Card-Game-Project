@@ -22,22 +22,19 @@ public class PlayOrContinueWindow extends JFrame implements ActionListener {
     private static int MAX_NUM_OF_CARDS = 20;
 
     private Account accountSignedIn;
-    private CardGame cardGame;
+
+    private CardHandler cardHandler;
+    private List<Card> playerCards;
+    private List<Card> compCards;
 
     private JButton newGameButton;
     private JButton continueGameButton;
-
     private JFrame signInError;
     private JFrame signInSuccess;
     private JButton okayButtonError;
     private JButton okayButtonSuccess;
-    private CardHandler cardHandler;
-
-    private java.util.List<Card> playerCards;
-    private List<Card> compCards;
 
     public PlayOrContinueWindow(Account accountSignedIn) {
-        this.cardGame = new CardGame(accountSignedIn);
         this.accountSignedIn = accountSignedIn;
         this.cardHandler = new CardHandler();
         this.playerCards = new ArrayList<>();

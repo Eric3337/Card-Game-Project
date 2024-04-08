@@ -7,22 +7,16 @@ import ui.options.NoPlayerOnLeaderboardWindow;
 import java.util.*;
 
 public class LeaderBoardSorter {
-    private MessagePrinter msgPrinter;
-
     private AccountList accountList;
-    private Account accountSignedIn;
-
     private EventLog eventLog;
 
 
     public LeaderBoardSorter() {
-        this.msgPrinter = new MessagePrinter();
         eventLog = EventLog.getInstance();
     }
 
     public void sortLeaderBoard(AccountList accList, Account accSignedIn) {
         this.accountList = accList;
-        this.accountSignedIn = accSignedIn;
 
         if (accountList.getAccountList().size() == 0) {
             new NoPlayerOnLeaderboardWindow();

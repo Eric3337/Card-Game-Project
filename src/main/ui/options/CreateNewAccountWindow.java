@@ -15,6 +15,7 @@ public class CreateNewAccountWindow extends JFrame implements ActionListener {
 
     private Account accountSignedIn;
     private AccountList accountList;
+
     private JButton submit;
     private JTextField inputtedUsername;
     private JTextField inputtedPassword;
