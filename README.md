@@ -47,4 +47,4 @@ Phase 4: Task 2
 - Create an account with username "User2", you will get a log that says
   "Added user: User2 to list of accounts. at (Day Month Time Timezone 2024)".
 - Select Leaderboard to log the following: 
-"List of accounts used for ordering accounts by win loss ratio. at (Day Month Time Timezone 2024)"
+"List of accounts used for ordering accounts by win loss ratio at (Day Month Time Timezone 2024)"

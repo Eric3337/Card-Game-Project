@@ -173,7 +173,7 @@ public class Main extends JFrame implements ActionListener {
         if (e.getSource() == quitButton) {
             for (Event event : eventLog) {
                 System.out.println(event.getDescription() + " at "
-                        + "(" + event.getDate() + ")");
+                        + "(" + event.getDate() + ").");
             }
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }

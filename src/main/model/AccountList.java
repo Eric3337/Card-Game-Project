@@ -27,7 +27,7 @@ public class AccountList implements Writable {
     public void addAccount(Account account) {
         this.accountList.add(account);
         eventLog.logEvent(new Event("Added user: " + account.getUsername()
-                + " to list of accounts."));
+                + " to list of accounts"));
     }
 
     @Override

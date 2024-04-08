@@ -29,7 +29,7 @@ public class LeaderBoardSorter {
             return;
         }
 
-        eventLog.logEvent(new Event("List of accounts used for ordering accounts by win loss ratio."));
+        eventLog.logEvent(new Event("List of accounts used for ordering accounts by win loss ratio"));
         orderAccounts(accountList);
     }
 
