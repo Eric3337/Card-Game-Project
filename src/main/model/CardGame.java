@@ -27,6 +27,13 @@ public class CardGame implements Writable {
         this.cardHandler = new CardHandler();
     }
 
+    public CardGame(Account accountSignedIn) {
+        this.accountSignedIn = accountSignedIn;
+        this.playerCards = new ArrayList<>();
+        this.compCards = new ArrayList<>();
+        this.cardHandler = new CardHandler();
+    }
+
     // EFFECTS: adds given card to player cards
     public void addPlayerCard(Card c) {
         this.playerCards.add(c);
@@ -48,13 +55,13 @@ public class CardGame implements Writable {
 
         cardHandler.dealCards(numCardsPerPlayer, playerCards, compCards);
 
-        runGame(playerCards, compCards, accountSignedIn);
+        runGame(accountSignedIn);
     }
 
     // EFFECTS: continues playing game from file and keeps track of each side's cards.
     //          Then, it deals cards to each player and runs the game accordingly
     public void continueGame(Account accountSignedIn) {
-        runGame(playerCards, compCards, accountSignedIn);
+        runGame(accountSignedIn);
     }
 
     // EFFECTS: runs a game of cards based off the rules of the game and which cards the player has
@@ -62,7 +69,7 @@ public class CardGame implements Writable {
     //          if either the player or opponent (computer opponent) runs out of cards,
     //          print out appropriate message and add a victory or loss to player accordingly
     //          then adds one game to total games played
-    private void runGame(List<Card> playerCards, List<Card> compCards, Account accountSignedIn) {
+    private void runGame(Account accountSignedIn) {
         boolean isGamePlaying = true;
         Card lastCardPlayed = null;
 
@@ -76,7 +83,10 @@ public class CardGame implements Writable {
                 break;
             }
             if (lastCardPlayed != null) {
-                isGamePlaying = !lastCardPlayed.getSuit().equals("breakCard");
+                if (lastCardPlayed.getSuit().equals("breakCard")) {
+                    isGamePlaying = false;
+                    cardApp.saveGame();
+                }
             }
         }
         if (lastCardPlayed == null) {
@@ -130,5 +140,9 @@ public class CardGame implements Writable {
 
     public List<Card> getCompCards() {
         return compCards;
+    }
+
+    public CardHandler getCardHandler() {
+        return cardHandler;
     }
 }

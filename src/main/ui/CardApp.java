@@ -37,6 +37,10 @@ public class CardApp {
         runApp();
     }
 
+    public CardApp(String name) {
+        init();
+    }
+
     // MODIFIES: this
     // EFFECTS: initializes the fields (accountSignedIn was not initialized here since
     //          it needs to be null at first
@@ -83,7 +87,7 @@ public class CardApp {
         }
 
         System.out.println("Thank you for playing!");
-        saveAccountList();
+        saveAccountList(this.accountList);
     }
 
     // EFFECTS: displays the main menu of the game
@@ -164,7 +168,7 @@ public class CardApp {
     }
 
     // EFFECTS: saves the card game to file
-    private void saveGame() {
+    public void saveGame() {
         try {
             jsonWriterGame.open();
             jsonWriterGame.writeGame(cardGame);
@@ -176,7 +180,7 @@ public class CardApp {
     }
 
     // EFFECTS: saves the card game to file
-    private void saveAccountList() {
+    public void saveAccountList(AccountList accountList) {
         try {
             jsonWriterAccounts.open();
             jsonWriterAccounts.writeAccList(accountList);
@@ -199,13 +203,15 @@ public class CardApp {
 
     // MODIFIES: this
     // EFFECTS: loads workroom from file
-    private void loadAccountList() {
+    public AccountList loadAccountList() {
         try {
             accountList = jsonReaderAccounts.readAccountList(this);
             System.out.println("Loaded list of accounts " + JSON_STORE_ACCOUNTS);
+            return accountList;
         } catch (IOException e) {
             System.out.println("Unable to read from file: " + JSON_STORE_ACCOUNTS);
         }
+        return null;
     }
 
     // EFFECTS: checks to see if the game is over and modifies the fields in the signed in accounts according to

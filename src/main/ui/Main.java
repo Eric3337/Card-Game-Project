@@ -2,6 +2,8 @@ package ui;
 
 import model.*;
 import ui.options.CreateNewAccountWindow;
+import ui.options.LeaderboardWindow;
+import ui.options.PlayOrContinueWindow;
 import ui.options.SignInWindow;
 import persistence.JsonReader;
 import persistence.JsonWriter;
@@ -15,13 +17,12 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 
-public class DaNiangNiang extends JFrame implements ActionListener {
+public class Main extends JFrame implements ActionListener {
     private static final int FRAME_WIDTH = 1000;
     private static final int FRAME_HEIGHT = 750;
 
     private static final String JSON_STORE_GAME = "./data/cardgame.json";
     private static final String JSON_STORE_ACCOUNTS = "./data/accountList.json";
-    private Scanner input;
 
     private AccountList accountList;
     private Account accountSignedIn;
@@ -32,7 +33,6 @@ public class DaNiangNiang extends JFrame implements ActionListener {
     private CardHandler cardHandler;
     private TurnHandler turnHandler;
     private LeaderBoardSorter leaderBoardSorter;
-    private MessagePrinter msgPrinter;
 
     private JsonWriter jsonWriterGame;
     private JsonReader jsonReaderGame;
@@ -46,7 +46,9 @@ public class DaNiangNiang extends JFrame implements ActionListener {
     private JButton myAccountButton;
     private JButton quitButton;
 
-    public DaNiangNiang() {
+    private SignInWindow signInWindow;
+
+    public Main() {
         super("Da Niang Niang");
         initializeFields();
         setJFrameSettings();
@@ -54,13 +56,12 @@ public class DaNiangNiang extends JFrame implements ActionListener {
 
     private void initializeFields() {
         this.accountList = new AccountList();
-        this.input = new Scanner(System.in);
-        this.input.useDelimiter("\n");
+        this.accountSignedIn = new Account("eric", "123");
         this.cardGame = new CardGame(accountSignedIn, cardApp);
         this.cardHandler = new CardHandler();
+        this.cardApp = new CardApp("test");
         this.turnHandler = new TurnHandler();
         this.leaderBoardSorter = new LeaderBoardSorter();
-        this.msgPrinter = new MessagePrinter();
 
         this.jsonWriterGame = new JsonWriter(JSON_STORE_GAME);
         this.jsonReaderGame = new JsonReader(JSON_STORE_GAME);
@@ -107,7 +108,7 @@ public class DaNiangNiang extends JFrame implements ActionListener {
     }
 
     private void makePlayButton() {
-        playButton = new JButton("Play");
+        playButton = new JButton("Save Account");
         playButton.setBounds(195, 150, 100, 50);
         playButton.addActionListener(this);
         playButton.setFocusable(false);
@@ -128,14 +129,14 @@ public class DaNiangNiang extends JFrame implements ActionListener {
     }
 
     private void makeLeaderBoardButton() {
-        leaderBoardButton = new JButton("Add Account to Data");
+        leaderBoardButton = new JButton("Leaderboard");
         leaderBoardButton.setBounds(169, 300, 149, 50);
         leaderBoardButton.addActionListener(this);
         leaderBoardButton.setFocusable(false);
     }
 
     private void makeMyAccountButton() {
-        myAccountButton = new JButton("My Account");
+        myAccountButton = new JButton("Load Accounts from List");
         myAccountButton.setBounds(169, 350, 149, 50);
         myAccountButton.addActionListener(this);
         myAccountButton.setFocusable(false);
@@ -151,7 +152,7 @@ public class DaNiangNiang extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == playButton) {
-            System.out.println("Playing game");
+            saveAccount();
         }
         if (e.getSource() == signInButton) {
             signIn();
@@ -160,62 +161,49 @@ public class DaNiangNiang extends JFrame implements ActionListener {
             createNewAccount();
         }
         if (e.getSource() == leaderBoardButton) {
-            System.out.println("Showing leaderboard");
+            showLeaderboard();
         }
         if (e.getSource() == myAccountButton) {
-            System.out.println("Showing your account");
+            loadAccountList();
         }
         if (e.getSource() == quitButton) {
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
     }
 
+    private void newOrContinueGame() {
+        new PlayOrContinueWindow(accountSignedIn);
+    }
+
     // EFFECTS: signs in a user into their account
     private void signIn() {
-        SignInWindow sw = new SignInWindow(accountSignedIn, accountList);
-
-        if (sw.getAccountSignedIn() != null) {
-            JLabel accountSignedInLabel = new JLabel();
-            accountSignedInLabel.setText("Welcome " + sw.getAccountSignedIn().getUsername() + "!");
-        }
-        this.accountSignedIn = sw.getAccountSignedIn();
+        signInWindow = new SignInWindow(accountSignedIn, accountList);
+        //this.accountSignedIn = signInWindow.getAccountSignedIn();
+        System.out.println(signInWindow.getAccountSignedIn());
     }
 
     // EFFECTS: creates a new account based off a user's username and password
     private void createNewAccount() {
-        CreateNewAccountWindow window = new CreateNewAccountWindow(accountSignedIn, accountList);
+        new CreateNewAccountWindow(accountSignedIn, accountList);
 
-        if (window.getAccountSignedIn() != null) {
-            JLabel accountSignedInLabel = new JLabel();
-            accountSignedInLabel.setText("Welcome " + window.getAccountSignedIn().getUsername() + "!");
-        }
-//        System.out.println("Username: ");
-//        String inputtedUsername = input.next();
-//
-//        if (accountList.getAccountList().size() > 0) {
-//            boolean isValidUsername = false;
-//
-//            while (!isValidUsername) {
-//                for (Account account : accountList.getAccountList()) {
-//                    String ithUsername = account.getUsername();
-//                    if (inputtedUsername.equals(ithUsername)) {
-//                        System.out.println("That username has been taken. Try again!");
-//                        return;
-//                    } else {
-//                        isValidUsername = true;
-//                    }
-//                }
-//            }
-//        }
-//        System.out.println("Password: ");
-//        String password = input.next();
-//        Account userAccount = new Account(inputtedUsername, password);
-//        accountList.getAccountList().add(userAccount);
-//        accountSignedIn = userAccount;
+    }
+
+    // EFFECTS: show the leaderboard with the user's position on the leaderboard, with the option to return back
+    //          to the main menu
+    private void showLeaderboard() {
+        leaderBoardSorter.sortLeaderBoard(accountList, accountSignedIn);
+    }
+
+    private void saveAccount() {
+        cardApp.saveAccountList(accountList);
+    }
+
+    private void loadAccountList() {
+        accountList = cardApp.loadAccountList();
     }
 
     public static void main(String[] args) {
-        new DaNiangNiang();
+        new Main();
         try {
             new CardApp();
         } catch (FileNotFoundException e) {

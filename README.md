@@ -38,3 +38,5 @@ where the system can look through it easily.
 - As a user, I want to be able to see the leaderboard for the top user accounts based on win/loss ratio.
 - As a user, I want to be able to save my current game playing to file (if I choose so).
 - As a user, I want to be able to load my current game playing from file (if I choose so).
+- As a user, I want to be able to add multiple accounts to an account list.
+- As a user, I want to be able to load and save the state of a card game.

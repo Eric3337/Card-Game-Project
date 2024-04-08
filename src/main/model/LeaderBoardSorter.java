@@ -1,51 +1,63 @@
 package model;
 
 import ui.MessagePrinter;
+import ui.options.LeaderboardWindow;
+import ui.options.NoPlayerOnLeaderboardWindow;
 
 import java.util.*;
 
 public class LeaderBoardSorter {
     private MessagePrinter msgPrinter;
 
+    private AccountList accountList;
+    private Account accountSignedIn;
+
 
     public LeaderBoardSorter() {
         this.msgPrinter = new MessagePrinter();
     }
 
-    public void sortLeaderBoard(AccountList accountList, Account accountSignedIn) {
-        Map<Double, String> unsortedLeaderBoard = new HashMap<>();
-        List<Double> ratioList = new ArrayList<>();
+    public void sortLeaderBoard(AccountList accList, Account accSignedIn) {
+        this.accountList = accList;
+        this.accountSignedIn = accSignedIn;
+
         if (accountList.getAccountList().size() == 0) {
-            msgPrinter.printMessage("No players on leaderboard yet!");
+            new NoPlayerOnLeaderboardWindow();
             return;
         }
 
-        orderAccounts(accountList, unsortedLeaderBoard, ratioList);
-
-        if (accountSignedIn != null) {
-            int accPos = ratioList.indexOf(accountSignedIn.calculateRatio()) + 1;
-            msgPrinter.printMessage("\nMy position is: " + accPos);
-        }
+        orderAccounts(accountList);
     }
 
-    public void orderAccounts(AccountList accountList, Map<Double, String> unsortedLeaderBoard,
-                              List<Double> ratioList) {
-        for (Account account : accountList.getAccountList()) {
-            double ithWinLossRatio = account.calculateRatio();
-            unsortedLeaderBoard.put(ithWinLossRatio, account.getUsername());
-            ratioList.add(ithWinLossRatio);
-        }
-        ratioList.sort(Collections.reverseOrder());
+    // REQUIRES: accountList.getAccountList().size() != 0
+    public void orderAccounts(AccountList accountList) {
+        double prevWinLossRatio = accountList.getAccountList().get(0).calculateRatio();
+        Map<String, Double> sortedLeaderBoard = new LinkedHashMap<>();
 
-        Map<String, Double>  sortedLeaderBoard = new LinkedHashMap<>();
-        for (Double dbl : ratioList) {
-            String username = unsortedLeaderBoard.get(dbl);
-            unsortedLeaderBoard.remove(dbl, username);
-            sortedLeaderBoard.put(username, dbl);
+        sortedLeaderBoard.put(accountList.getAccountList().get(0).getUsername(), prevWinLossRatio);
+
+        for (int i = 1; i < accountList.getAccountList().size(); i++) {
+            Account account = accountList.getAccountList().get(i);
+            double winLossRatio = account.calculateRatio();
+
+            if (winLossRatio < prevWinLossRatio) {
+                prevWinLossRatio = winLossRatio;
+
+                orderByAscendingDoubleValues(prevWinLossRatio, sortedLeaderBoard, account);
+
+            } else {
+                sortedLeaderBoard.put(account.getUsername(), winLossRatio);
+            }
         }
 
-        for (String username : sortedLeaderBoard.keySet()) {
-            msgPrinter.printMessage(username + " = " + sortedLeaderBoard.get(username));
-        }
+        new LeaderboardWindow(sortedLeaderBoard);
+    }
+
+    private void orderByAscendingDoubleValues(double prevWinLossRatio,
+                                              Map<String, Double> sortedLeaderBoard, Account account) {
+        Map<String, Double> tempMap = new HashMap<>(sortedLeaderBoard);
+        sortedLeaderBoard.clear();
+        sortedLeaderBoard.put(account.getUsername(), prevWinLossRatio);
+        sortedLeaderBoard.putAll(tempMap);
     }
 }

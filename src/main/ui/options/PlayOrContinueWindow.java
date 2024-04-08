@@ -1,52 +1,59 @@
 package ui.options;
 
 import model.Account;
-import model.AccountList;
+import model.Card;
+import model.CardGame;
+import model.CardHandler;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-public class SignInWindow extends JFrame implements ActionListener {
+public class PlayOrContinueWindow extends JFrame implements ActionListener {
     private static int TEXT_AND_BUTTON_WIDTH = 10;
     private static int TEXT_AND_BUTTON_HEIGHT = 40;
 
+    private static int MIN_NUM_OF_CARDS = 10;
+    private static int MAX_NUM_OF_CARDS = 20;
+
     private Account accountSignedIn;
-    private AccountList accountList;
-    private JButton submit;
-    private JTextField inputtedUsername;
-    private JTextField inputtedPassword;
+    private CardGame cardGame;
+
+    private JButton newGameButton;
+    private JButton continueGameButton;
 
     private JFrame signInError;
     private JFrame signInSuccess;
     private JButton okayButtonError;
     private JButton okayButtonSuccess;
+    private CardHandler cardHandler;
 
-    public SignInWindow(Account accountSignedIn, AccountList accountList) {
-        this.accountList = accountList;
+    private java.util.List<Card> playerCards;
+    private List<Card> compCards;
+
+    public PlayOrContinueWindow(Account accountSignedIn) {
+        this.cardGame = new CardGame(accountSignedIn);
+        this.accountSignedIn = accountSignedIn;
+        this.cardHandler = new CardHandler();
+        this.playerCards = new ArrayList<>();
+        this.compCards = new ArrayList<>();
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(3, 1));
+        setLayout(new GridLayout(1, 2));
 
-        submit = new JButton("Submit");
-        submit.addActionListener(this);
+        newGameButton = new JButton("Start new game");
+        newGameButton.addActionListener(this);
 
-        JLabel usernameLabel = new JLabel("Username: ");
-        usernameLabel.setPreferredSize(new Dimension(TEXT_AND_BUTTON_WIDTH, TEXT_AND_BUTTON_HEIGHT));
-        inputtedUsername = new JTextField();
-        inputtedUsername.setPreferredSize(new Dimension(250, TEXT_AND_BUTTON_HEIGHT));
+        continueGameButton = new JButton("Continue game");
+        continueGameButton.addActionListener(this);
 
-        JLabel passwordLabel = new JLabel("Password: ");
-        passwordLabel.setPreferredSize(new Dimension(TEXT_AND_BUTTON_WIDTH, TEXT_AND_BUTTON_HEIGHT));
-        inputtedPassword = new JTextField();
-        inputtedPassword.setPreferredSize(new Dimension(250, TEXT_AND_BUTTON_HEIGHT));
-
-        add(usernameLabel);
-        this.add(inputtedUsername);
-        add(passwordLabel);
-        add(inputtedPassword);
-        add(submit);
+        add(newGameButton);
+        add(continueGameButton);
         pack();
         setVisible(true);
 
@@ -56,19 +63,9 @@ public class SignInWindow extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == submit) {
-            for (Account account : accountList.getAccountList()) {
-                String ithUsername = account.getUsername();
-                String ithPw = account.getPw();
-                if (ithUsername.equals(inputtedUsername.getText()) && ithPw.equals(inputtedPassword.getText())) {
-                    signInSuccessWindow();
-                    this.accountSignedIn = account;
-                    this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-                    return;
-                }
-            }
-            signInErrorWindow();
-            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        if (e.getSource() == newGameButton) {
+            newGame(accountSignedIn);
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
         if (e.getSource() == okayButtonError) {
             signInError.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -76,6 +73,19 @@ public class SignInWindow extends JFrame implements ActionListener {
         if (e.getSource() == okayButtonSuccess) {
             signInSuccess.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
+    }
+
+    private void newGame(Account accountSignedIn) {
+        Random random = new Random();
+        int numCardsPerPlayer = random.nextInt(MAX_NUM_OF_CARDS - MIN_NUM_OF_CARDS) + MIN_NUM_OF_CARDS;
+
+        cardHandler.dealCards(numCardsPerPlayer, playerCards, compCards);
+
+        runGame(accountSignedIn);
+    }
+
+    private void runGame(Account accountSignedIn) {
+        new GameSetUpWindow(playerCards, null);
     }
 
     private void signInErrorWindow() {
