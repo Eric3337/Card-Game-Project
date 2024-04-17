@@ -60,4 +60,3 @@ and assigning classes their specific roles and nothing else will prove greatly.
 Also, I think I would mostly definitely use the design patterns (composite, observer, 
 and Singleton) to better the project. In general, reduce association coupling 
 , increase cohesion and abstraction.
-
